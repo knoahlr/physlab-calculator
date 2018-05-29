@@ -79,7 +79,7 @@ def make_table(expression, error_expression, quantity, csv):
 
 
 if __name__ == '__main__':
-    test = pd.read_csv('vacuum_volume.csv')
+    test = pd.read_csv('main_test.csv')
 
     # The equation string from the csv
     equation = test.iloc[1]['Equation']

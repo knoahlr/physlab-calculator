@@ -1,7 +1,8 @@
 import sys
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidget
 from PyQt5.QtWidgets import QApplication, QWidget
 import main
+
 
 class Window(QtGui.QWindow):
     def __init__(self):
@@ -13,13 +14,30 @@ class Window(QtGui.QWindow):
         self.sampleCalcBox()
         self.latexOutputBox()
 
-    def equationBox(self):
-        print('To be implemented')
-    def sampleCalcBox(self):
-        print('To be implemented')
-    def latexOutputBox(self):
-        print('To be implemented')
+    # def equationBox(self):
+    #     print('To be implemented')
 
+    # def latexOutputBox(self):
+    #     print('To be implemented')
+
+class equationBox(QtWidget.QLineEdit):
+    def __init__(self, position):
+        super().__init__()
+        #Continue class definition
+
+
+class latexOutputBox(QtWidget.QTextBox):
+    def __init__(self, position):
+        super().__init__()
+        #Continue class definition
+
+
+class sampleCalculation(QWidget.QLineEdit):
+
+    def __init__(self, position, boxTitle):
+        super().__init__()
+        self.move(position[0], position[1])
+        self.setTitle(boxTitle)
 
 
 def run():
@@ -27,4 +45,5 @@ def run():
     myWindow = Window() 
     sys.exit(app.exec_())
 
-run()
+if __name__ == '__main__':
+    run()

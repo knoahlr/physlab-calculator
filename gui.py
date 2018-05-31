@@ -1,19 +1,39 @@
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import QWidget, QMainWindow, QApplication
+from PyQt5.QtWidgets import *
 # import main
 
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        #Menus
         menubar = self.menuBar()
         menubar.addMenu('File')
-        self.setGeometry(50, 50, 500, 300)
+        self.setGeometry(100, 100, 500, 300)
         self.setWindowTitle("PyQt5 Trial")
 
+        #BaseLayout and Central widget
+        centreW = QWidget()
+        self.baseLayout = QBoxLayout(0)
+        
+        self.setCentralWidget(centreW)
+        self.centralWidget().addLayout(self.baseLayout)
+
+        #Secondary Customizations
+        topLayout = QHBoxLayout() #.minimumSize(QBoxLayout.sizeHint())
+        bottomLayout = QHBoxLayout()#.minmumSize(QBoxLayout.sizeHint())
+        self.baseLayout.addWidget(topLayout)
+        self.baseLayout.addWidget(bottomLayout)
+
+        
+
     def addEquationBox(self):
-        self.EquationBox = equationBox((80, 20))
+        label = QLabel('Equation')
+        displace = label.frameWidth()
+        self.vLayout.addWidget(label)
+        self.EquationBox = equationBox()
+        self.vLayout.addWidget(self.EquationBox)
 
     def addOutput(self, position):
         latexOutputBox((150, 100))
@@ -28,10 +48,12 @@ class secondaryWindow(QtGui.QWindow):
         equationBox(position)
         
 class equationBox(QtWidgets.QLineEdit):
-    def __init__(self, position):
+    def __init__(self):
         super().__init__()
         self.setPlaceholderText("Equation")
-        self.move(position[0], position[1])
+        self.setFrame(True)
+        self.setFixedSize(self.sizeHint())
+        #self.move(position[0], position[1])
         #self.show()
         #Continue class definition
 

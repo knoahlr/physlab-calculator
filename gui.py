@@ -7,52 +7,71 @@ from PyQt5.QtWidgets import *
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        #Menus
-        menubar = self.menuBar()
-        menubar.addMenu('File')
 
         self.setMinimumSize(800, 300)
-        self.setGeometry(1000, 1000, 500, 300)
-        self.setWindowTitle("PyQt5 Trial")
 
-        #BaseLayout and Central widget
-        # centreW = QWidget()
-        # self.baseLayout = QBoxLayout(0)
-        
+        self.setWindowTitle("Error Propagation")
+   
         self.centralwidget = QtWidgets.QWidget()
         self.centralwidget.setObjectName('centralWidget')
 
-        #Labels
-        self.eqlabel = QtWidgets.QLabel(self.centralwidget)
-        self.eqlabel.setGeometry(QtCore.QRect(40, 40, 89, 25))
-        self.eqlabel.setObjectName("Equation")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        
+        self.formLayout = QtWidgets.QFormLayout()
+        self.formLayout.setObjectName("formLayout")
 
-        self.eqEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.eqEdit.setGeometry(QtCore.QRect(120, 40, 181, 31))
-        self.eqEdit.setObjectName("equation editor")
+        #Labels 
+        self.equationLabel = QtWidgets.QLabel("Equation", self.centralwidget)
+        self.equationLabel.setObjectName("equationLabel")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.equationLabel)
 
-        self.latexOut = QtWidgets.QTextEdit(self.centralwidget)
-        self.latexOut.setGeometry(QtCore.QRect(110, 120, 661, 140))
-        self.latexOut.setObjectName("Latex Output")
+        self.constantsLabel = QtWidgets.QLabel("Constants", self.centralwidget)
+        self.constantsLabel.setObjectName("constantsLabel")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.constantsLabel)
 
-        self.latexOutLabel = QtWidgets.QLabel(self.centralwidget)
-        self.latexOutLabel.setGeometry(QtCore.QRect(30, 160, 89, 25))
-        self.latexOutLabel.setObjectName("latex Output Label")
+        self.label = QtWidgets.QLabel("Latex Output", self.centralwidget)
+        self.label.setObjectName("label")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label)
 
-        self.submit = QtWidgets.QPushButton(self.centralwidget)
-        self.submit.setGeometry(QtCore.QRect(320, 50, 61, 21))
-        self.submit.setObjectName("submit")
+        #Equation and constants text editors
+        
+        self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.equationLineEdit.setObjectName("equationLineEdit")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.equationLineEdit)
+
+        self.constantsLineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.constantsLineEdit.setObjectName("constantsLineEdit")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.constantsLineEdit)
+
+        #Latex Output
+        self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit.setObjectName("textEdit")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.textEdit)
+                #Push button
+        self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
+        self.submitButton.setObjectName("pushButton")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.submitButton)
+
+        self.submitButton.clicked.connect(self.handleSubmit)
+
+        self.verticalLayout.addLayout(self.formLayout)
 
         self.setCentralWidget(self.centralwidget)
 
-        #self.centralWidget().setLayout(self.baseLayout)
+        
+    def center(self):
+        frameGm = self.frameGeometry()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        centerPoint = QApplication.desktop().screenGeometry(screen).center()
+        frameGm.moveCenter(centerPoint)
+        self.move(frameGm.topLeft())
 
-        #Secondary Customizations
-        # topLayout = QHBoxLayout() #.minimumSize(QBoxLayout.sizeHint())
-        # bottomLayout = QHBoxLayout()#.minmumSize(QBoxLayout.sizeHint())
-        # self.baseLayout.addWidget(topLayout)
-        # self.baseLayout.addWidget(bottomLayout)
-
+    def handleSubmit(self):
+        print(self.equationLineEdit.text())
+        print(self.constantsLineEdit.text())
+        self.equationLineEdit.clear()
+        self.constantsLineEdit.clear()
         
 
     def addEquationBox(self):
@@ -74,25 +93,6 @@ class secondaryWindow(QtGui.QWindow):
     def addSampleCalcBox(self, position):
         equationBox(position)
         
-class equationBox(QtWidgets.QLineEdit):
-    def __init__(self):
-        super().__init__()
-        self.setPlaceholderText("Equation")
-        self.setFrame(True)
-        self.setFixedSize(self.sizeHint())
-        #self.move(position[0], position[1])
-        #self.show()
-        #Continue class definition
-
-
-class latexOutputBox(QtWidgets.QTextEdit):
-    def __init__(self, position):
-        super().__init__()
-        self.setPlaceholderText("LaTex OutPut")
-        self.move(position[0], position[1])
-        #self.move()
-        #Continue class definition
-
 
 class sampleCalculation(QtWidgets.QLineEdit):
 

@@ -35,7 +35,6 @@ class Window(QtWidgets.QMainWindow):
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label)
 
         #Equation and constants text editors
-        
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.equationLineEdit.setObjectName("equationLineEdit")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.equationLineEdit)
@@ -48,7 +47,8 @@ class Window(QtWidgets.QMainWindow):
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setObjectName("textEdit")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.textEdit)
-                #Push button
+
+        #submit button
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
         self.submitButton.setObjectName("pushButton")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.submitButton)
@@ -60,7 +60,8 @@ class Window(QtWidgets.QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
         
-    def center(self):
+    def center(self):#Center Main window in active screen. Uses cursor position as reference.
+        
         frameGm = self.frameGeometry()
         screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
         centerPoint = QApplication.desktop().screenGeometry(screen).center()
@@ -72,40 +73,58 @@ class Window(QtWidgets.QMainWindow):
         print(self.constantsLineEdit.text())
         self.equationLineEdit.clear()
         self.constantsLineEdit.clear()
+
+
         
-
-    def addEquationBox(self):
-        label = QLabel('Equation')
-        displace = label.frameWidth()
-        self.vLayout.addWidget(label)
-        self.EquationBox = equationBox()
-        self.vLayout.addWidget(self.EquationBox)
-
-    def addOutput(self, position):
-        latexOutputBox((150, 100))
-
+        
 class secondaryWindow(QtGui.QWindow):
+    
     def __init__(self):
         super().__init__()
-        self.setBaseSize()
+
         self.setTitle("Sample Calculation")
+        self.setObjectName("SampleCalc")
+        self.resize(585, 368)
 
-    def addSampleCalcBox(self, position):
-        equationBox(position)
-        
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
 
-class sampleCalculation(QtWidgets.QLineEdit):
+        self.frame = QtWidgets.QFrame()
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.verticalLayout.addWidget(self.frame)
 
-    def __init__(self, position, boxTitle):
-        super().__init__()
-        self.move(position[0], position[1])
-        self.setTitle(boxTitle)
-        self.setBaseSize(50, 50)
+        self.frame_2 = QtWidgets.QFrame()
+        self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.verticalLayout.addWidget(self.frame_2)
+
+        self.frame1FLayout = QtWidgets.QFormLayout()
+        self.frame1FLayout.setObjectName("vertical Layout")
+
+        self.lay = self.addInputs(['cow','dog','monkey'], self.frame1FLayout)
+        self.frame.setLayout(self.lay)
+
+
+        # self.retranslateUi(SampleCalc)
+        # QtCore.QMetaObject.connectSlotsByName(SampleCalc)
+    def addInputs(self, variables, layout):
+
+        for variable in variables:
+            self.inputLabel = QLabel(variable)
+            self.input = QLineEdit(variable)
+            layout.addRow(self.inputLabel, self.input)
+        return layout
+            
+
+            
 
 
 def run():
     app = QApplication(sys.argv)
-    myWindow = Window()
+    myWindow = secondaryWindow()
     myWindow.show()
     sys.exit(app.exec_())
 

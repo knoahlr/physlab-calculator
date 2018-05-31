@@ -10,21 +10,48 @@ class Window(QtWidgets.QMainWindow):
         #Menus
         menubar = self.menuBar()
         menubar.addMenu('File')
-        self.setGeometry(100, 100, 500, 300)
+
+        self.setMinimumSize(800, 300)
+        self.setGeometry(1000, 1000, 500, 300)
         self.setWindowTitle("PyQt5 Trial")
 
         #BaseLayout and Central widget
-        centreW = QWidget()
-        self.baseLayout = QBoxLayout(0)
+        # centreW = QWidget()
+        # self.baseLayout = QBoxLayout(0)
         
-        self.setCentralWidget(centreW)
-        self.centralWidget().addLayout(self.baseLayout)
+        self.centralwidget = QtWidgets.QWidget()
+        self.centralwidget.setObjectName('centralWidget')
+
+        #Labels
+        self.eqlabel = QtWidgets.QLabel(self.centralwidget)
+        self.eqlabel.setGeometry(QtCore.QRect(40, 40, 89, 25))
+        self.eqlabel.setObjectName("Equation")
+
+        self.eqEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.eqEdit.setGeometry(QtCore.QRect(120, 40, 181, 31))
+        self.eqEdit.setObjectName("equation editor")
+
+        self.latexOut = QtWidgets.QTextEdit(self.centralwidget)
+        self.latexOut.setGeometry(QtCore.QRect(110, 120, 661, 140))
+        self.latexOut.setObjectName("Latex Output")
+
+        self.latexOutLabel = QtWidgets.QLabel(self.centralwidget)
+        self.latexOutLabel.setGeometry(QtCore.QRect(30, 160, 89, 25))
+        self.latexOutLabel.setObjectName("latex Output Label")
+
+        self.submit = QtWidgets.QPushButton(self.centralwidget)
+        self.submit.setGeometry(QtCore.QRect(320, 50, 61, 21))
+        self.submit.setObjectName("submit")
+
+        self.setCentralWidget(self.centralwidget)
+
+        #self.centralWidget().setLayout(self.baseLayout)
 
         #Secondary Customizations
-        topLayout = QHBoxLayout() #.minimumSize(QBoxLayout.sizeHint())
-        bottomLayout = QHBoxLayout()#.minmumSize(QBoxLayout.sizeHint())
-        self.baseLayout.addWidget(topLayout)
-        self.baseLayout.addWidget(bottomLayout)
+        # topLayout = QHBoxLayout() #.minimumSize(QBoxLayout.sizeHint())
+        # bottomLayout = QHBoxLayout()#.minmumSize(QBoxLayout.sizeHint())
+        # self.baseLayout.addWidget(topLayout)
+        # self.baseLayout.addWidget(bottomLayout)
 
         
 
@@ -79,7 +106,6 @@ class sampleCalculation(QtWidgets.QLineEdit):
 def run():
     app = QApplication(sys.argv)
     myWindow = Window()
-    myWindow.addEquationBox()
     myWindow.show()
     sys.exit(app.exec_())
 

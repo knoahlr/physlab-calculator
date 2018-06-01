@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 # import main
 
 
-class Window(QtWidgets.QMainWindow):
+class Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -77,51 +77,62 @@ class Window(QtWidgets.QMainWindow):
 
         
         
-class secondaryWindow(QtGui.QWindow):
+class secondaryWindow(QWidget):
     
     def __init__(self):
         super().__init__()
 
-        self.setTitle("Sample Calculation")
+        self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
-        self.resize(585, 368)
+        self.resize(self.sizeHint())
+        self.row = 0
 
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
+        self.setLayout(self.verticalLayout)
 
         self.frame = QtWidgets.QFrame()
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
-        self.verticalLayout.addWidget(self.frame)
+        self.frame.setMidLineWidth(2)
+        self.frame.setLineWidth(2)
+        
 
         self.frame_2 = QtWidgets.QFrame()
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+
+        self.frame_2.setMidLineWidth(2)
+        self.frame_2.setLineWidth(2)
         self.frame_2.setObjectName("frame_2")
+
+        self.frame1formLT = QFormLayout(self.frame)
+
+        self.addInputs(['cow','dog','monkey'], self.frame1formLT, self.frame)
+        self.addInputs(['Noah','Hannah','Chris'], self.frame1formLT, self.frame_2)
+   
+        self.verticalLayout.addWidget(self.frame)
         self.verticalLayout.addWidget(self.frame_2)
 
-        self.frame1FLayout = QtWidgets.QFormLayout()
-        self.frame1FLayout.setObjectName("vertical Layout")
+    def addInputs(self, variables, layout, frame):
 
-        self.lay = self.addInputs(['cow','dog','monkey'], self.frame1FLayout)
-        self.frame.setLayout(self.lay)
-
-
-        # self.retranslateUi(SampleCalc)
-        # QtCore.QMetaObject.connectSlotsByName(SampleCalc)
-    def addInputs(self, variables, layout):
 
         for variable in variables:
-            self.inputLabel = QLabel(variable)
-            self.input = QLineEdit(variable)
-            layout.addRow(self.inputLabel, self.input)
+
+            self.inputLabel = QLabel(variable, frame)
+            self.input = QLineEdit(frame)
+            self.input.setPlaceholderText(variable)
+            layout.setWidget(self.row, QFormLayout.LabelRole, self.inputLabel)
+            layout.setWidget(self.row, QFormLayout.FieldRole,self.input)
+            self.row += 1
+        
         return layout
-            
-
-            
 
 
+    
+    
 def run():
     app = QApplication(sys.argv)
     myWindow = secondaryWindow()

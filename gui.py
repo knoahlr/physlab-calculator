@@ -1,6 +1,7 @@
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
+
 # import main
 
 
@@ -62,11 +63,11 @@ class Window(QMainWindow):
         
     def center(self):#Center Main window in active screen. Uses cursor position as reference.
         
-        frameGm = self.frameGeometry()
+        topGroupBoxGm = self.topGroupBoxGeometry()
         screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
         centerPoint = QApplication.desktop().screenGeometry(screen).center()
-        frameGm.moveCenter(centerPoint)
-        self.move(frameGm.topLeft())
+        topGroupBoxGm.moveCenter(centerPoint)
+        self.move(topGroupBoxGm.topLeft())
 
     def handleSubmit(self):
         print(self.equationLineEdit.text())
@@ -85,44 +86,55 @@ class secondaryWindow(QWidget):
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
         self.resize(self.sizeHint())
-        self.row = 0
+        
 
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.setLayout(self.verticalLayout)
 
-        self.frame = QtWidgets.QFrame()
-        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.topGroupBox = self.designGroupBox('Equation - Sample Calculation')
+        #self.topGroupBox.settopGroupBoxShape(QtWidgets.QtopGroupBox.StyledPanel)
         
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.frame.setMidLineWidth(2)
-        self.frame.setLineWidth(2)
+        # self.topGroupBox.settopGroupBoxShadow(QtWidgets.QtopGroupBox.Raised)
+        # self.topGroupBox.setObjectName("topGroupBox")
+        # self.topGroupBox.setMidLineWidth(2)
+        # self.topGroupBox.setLineWidth(2)
         
 
-        self.frame_2 = QtWidgets.QFrame()
-        self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.bottomGroupBox = self.designGroupBox('Error - Sample Calculation')
+        # self.bottomGroupBox.settopGroupBoxShape(QtWidgets.QtopGroupBox.StyledPanel)
+        # self.bottomGroupBox.settopGroupBoxShadow(QtWidgets.QtopGroupBox.Raised)
 
-        self.frame_2.setMidLineWidth(2)
-        self.frame_2.setLineWidth(2)
-        self.frame_2.setObjectName("frame_2")
+        # self.bottomGroupBox.setMidLineWidth(2)
+        # self.bottomGroupBox.setLineWidth(2)
+        # self.bottomGroupBox.setObjectName("bottomGroupBox")
 
-        self.frame1formLT = QFormLayout(self.frame)
+        #setting Group Box layout
+        self.topGroupBox1formLT = QFormLayout(self.topGroupBox)
+        self.topGroupBox2formLT = QFormLayout(self.bottomGroupBox)
 
-        self.addInputs(['cow','dog','monkey'], self.frame1formLT, self.frame)
-        self.addInputs(['Noah','Hannah','Chris'], self.frame1formLT, self.frame_2)
+        self.addInputs(['cow','dog','monkey'], self.topGroupBox1formLT, self.topGroupBox)
+        self.addInputs(['Noah','Hannah','Chris'], self.topGroupBox2formLT, self.bottomGroupBox)
    
-        self.verticalLayout.addWidget(self.frame)
-        self.verticalLayout.addWidget(self.frame_2)
+        self.verticalLayout.addWidget(self.topGroupBox)
+        self.verticalLayout.addWidget(self.bottomGroupBox)
 
-    def addInputs(self, variables, layout, frame):
+    def designGroupBox(self, boxTitle):
 
+        box = QGroupBox(boxTitle)
+
+        #Styling
+        #box.setStyle()
+        return box
+
+    def addInputs(self, variables, layout, topGroupBox):
+
+        self.row = 0
 
         for variable in variables:
 
-            self.inputLabel = QLabel(variable, frame)
-            self.input = QLineEdit(frame)
+            self.inputLabel = QLabel(variable, topGroupBox)
+            self.input = QLineEdit(topGroupBox)
             self.input.setPlaceholderText(variable)
             layout.setWidget(self.row, QFormLayout.LabelRole, self.inputLabel)
             layout.setWidget(self.row, QFormLayout.FieldRole,self.input)
@@ -135,6 +147,7 @@ class secondaryWindow(QWidget):
     
 def run():
     app = QApplication(sys.argv)
+    app.setStyle(QCommonStyle())
     myWindow = secondaryWindow()
     myWindow.show()
     sys.exit(app.exec_())

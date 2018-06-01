@@ -148,8 +148,10 @@ class secondaryWindow(QWidget):
 def run():
     app = QApplication(sys.argv)
     app.setStyle(QCommonStyle())
+    window = Window()
     myWindow = secondaryWindow()
     myWindow.show()
+    window.show()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

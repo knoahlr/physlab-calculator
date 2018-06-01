@@ -4,6 +4,8 @@ import uncertainties
 
 
 def alex_lazy_format(value, sigma_value):
+    print(type(value))
+    print('Noah', value, sigma_value)
     return '{:L}'.format(uncertainties.ufloat(float(value), float(sigma_value)))
 
 def structure_line(equation_string):

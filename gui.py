@@ -92,22 +92,8 @@ class secondaryWindow(QWidget):
         self.verticalLayout.setObjectName("verticalLayout")
         self.setLayout(self.verticalLayout)
 
-        self.topGroupBox = self.designGroupBox('Equation - Sample Calculation')
-        #self.topGroupBox.settopGroupBoxShape(QtWidgets.QtopGroupBox.StyledPanel)
-        
-        # self.topGroupBox.settopGroupBoxShadow(QtWidgets.QtopGroupBox.Raised)
-        # self.topGroupBox.setObjectName("topGroupBox")
-        # self.topGroupBox.setMidLineWidth(2)
-        # self.topGroupBox.setLineWidth(2)
-        
-
+        self.topGroupBox = self.designGroupBox('Equation - Sample Calculation')      
         self.bottomGroupBox = self.designGroupBox('Error - Sample Calculation')
-        # self.bottomGroupBox.settopGroupBoxShape(QtWidgets.QtopGroupBox.StyledPanel)
-        # self.bottomGroupBox.settopGroupBoxShadow(QtWidgets.QtopGroupBox.Raised)
-
-        # self.bottomGroupBox.setMidLineWidth(2)
-        # self.bottomGroupBox.setLineWidth(2)
-        # self.bottomGroupBox.setObjectName("bottomGroupBox")
 
         #setting Group Box layout
         self.topGroupBox1formLT = QFormLayout(self.topGroupBox)
@@ -122,9 +108,7 @@ class secondaryWindow(QWidget):
     def designGroupBox(self, boxTitle):
 
         box = QGroupBox(boxTitle)
-
-        #Styling
-        #box.setStyle()
+        #styling
         return box
 
     def addInputs(self, variables, layout, topGroupBox):

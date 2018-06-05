@@ -5,12 +5,16 @@ from PyQt5.QtWidgets import *
 # import main
 
 
-class Window(QMainWindow):
+class mainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setMinimumSize(800, 300)
+        '''Fields'''
+        self.equation_constants = {'equation':None,'constants':None}
+        self.secondWindow = secondaryWindow()
 
+
+        self.setMinimumSize(800, 300)
         self.setWindowTitle("Error Propagation")
    
         self.centralwidget = QtWidgets.QWidget()
@@ -70,18 +74,24 @@ class Window(QMainWindow):
         self.move(topGroupBoxGm.topLeft())
 
     def handleSubmit(self):
-        print(self.equationLineEdit.text())
-        print(self.constantsLineEdit.text())
+        self.equation_constants['equation'] = self.equationLineEdit.text()[0]
+        self.equation_constants['constants'] = self.constantsLineEdit.text()[0]
         self.equationLineEdit.clear()
         self.constantsLineEdit.clear()
 
+        constants = self.equation_constants['constants'].strip('\s').split(',')
+        equation = self.equation_constants['equation'].strip('\s')
 
-        
+        ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
         
 class secondaryWindow(QWidget):
     
     def __init__(self):
         super().__init__()
+
+        '''Data Fields'''
+        self.eqData = dict()
+        self.errData = dict()
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
@@ -99,11 +109,12 @@ class secondaryWindow(QWidget):
         self.topGroupBox1formLT = QFormLayout(self.topGroupBox)
         self.topGroupBox2formLT = QFormLayout(self.bottomGroupBox)
 
-        self.addInputs(['cow','dog','monkey'], self.topGroupBox1formLT, self.topGroupBox)
-        self.addInputs(['Noah','Hannah','Chris'], self.topGroupBox2formLT, self.bottomGroupBox)
+
    
         self.verticalLayout.addWidget(self.topGroupBox)
         self.verticalLayout.addWidget(self.bottomGroupBox)
+        self.addInputs(['cow','dog','monkey','Mosquito', 'Rhino'], self.topGroupBox1formLT, self.topGroupBox)
+        self.addInputs(['Noah','Hannah','Chris', 'Mauro'], self.topGroupBox2formLT, self.bottomGroupBox)
 
     def designGroupBox(self, boxTitle):
 
@@ -132,7 +143,7 @@ class secondaryWindow(QWidget):
 def run():
     app = QApplication(sys.argv)
     app.setStyle(QCommonStyle())
-    window = Window()
+    window = mainWindow()
     myWindow = secondaryWindow()
     myWindow.show()
     window.show()

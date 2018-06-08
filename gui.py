@@ -10,7 +10,7 @@ class mainWindow(QMainWindow):
         super().__init__()
 
         '''Fields'''
-        self.equation_constants = {'equation':None,'constants':None}
+        self.equation_variables = {'equation':None,'variables':None}
         self.secondWindow = secondaryWindow()
 
 
@@ -31,22 +31,22 @@ class mainWindow(QMainWindow):
         self.equationLabel.setObjectName("equationLabel")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.equationLabel)
 
-        self.constantsLabel = QtWidgets.QLabel("Constants", self.centralwidget)
-        self.constantsLabel.setObjectName("constantsLabel")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.constantsLabel)
+        self.variablesLabel = QtWidgets.QLabel("variables", self.centralwidget)
+        self.variablesLabel.setObjectName("variablesLabel")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.variablesLabel)
 
         self.label = QtWidgets.QLabel("Latex Output", self.centralwidget)
         self.label.setObjectName("label")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label)
 
-        #Equation and constants text editors
+        #Equation and variables text editors
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.equationLineEdit.setObjectName("equationLineEdit")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.equationLineEdit)
 
-        self.constantsLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.constantsLineEdit.setObjectName("constantsLineEdit")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.constantsLineEdit)
+        self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.variablesLineEdit.setObjectName("variablesLineEdit")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.variablesLineEdit)
 
         #Latex Output
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
@@ -74,13 +74,13 @@ class mainWindow(QMainWindow):
         self.move(topGroupBoxGm.topLeft())
 
     def handleSubmit(self):
-        self.equation_constants['equation'] = self.equationLineEdit.text()[0]
-        self.equation_constants['constants'] = self.constantsLineEdit.text()[0]
+        self.equation_variables['equation'] = self.equationLineEdit.text()[0]
+        self.equation_variables['variables'] = self.variablesLineEdit.text()[0]
         self.equationLineEdit.clear()
-        self.constantsLineEdit.clear()
+        self.variablesLineEdit.clear()
 
-        constants = self.equation_constants['constants'].strip('\s').split(',')
-        equation = self.equation_constants['equation'].strip('\s')
+        variables = self.equation_variables['variables'].strip('\s').split(',')
+        equation = self.equation_variables['equation'].strip('\s')
 
         ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
         
@@ -136,6 +136,17 @@ class secondaryWindow(QWidget):
             self.row += 1
         
         return layout
+'''Error Window Class Definition here'''
+#class ErrorWindow(QWidget):
+    
+
+'''Line and Text edit custom implementation here'''
+# class EquationVarEdit(QtWidgets.QLineEdit):
+
+
+#class LatexOutEdit(QtWidgets.QTextEdit):
+
+
 
 
     

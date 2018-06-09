@@ -2,16 +2,27 @@ import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
+from sympy import symbols, sympify
+from backend import sampleCalculations, partialDerivative
+
+import time
+
 # import main
 
 
 class mainWindow(QMainWindow):
+
+    """ 
+    Main window used to take in equation data and constants
+    """
+
     def __init__(self):
         super().__init__()
 
         '''Fields'''
         self.equation_variables = {'equation':None,'variables':None}
-        self.secondWindow = secondaryWindow()
+        #self.secondWindow = secondaryWindow()
+        self.symData = {}
 
 
         self.setMinimumSize(800, 300)
@@ -74,47 +85,73 @@ class mainWindow(QMainWindow):
         self.move(topGroupBoxGm.topLeft())
 
     def handleSubmit(self):
-        self.equation_variables['equation'] = self.equationLineEdit.text()[0]
-        self.equation_variables['variables'] = self.variablesLineEdit.text()[0]
+        self.equation_variables['equation'] = self.equationLineEdit.text()
+        self.equation_variables['variables'] = self.variablesLineEdit.text()
         self.equationLineEdit.clear()
         self.variablesLineEdit.clear()
 
         variables = self.equation_variables['variables'].strip('\s').split(',')
+        print(self.equation_variables['variables'])
         equation = self.equation_variables['equation'].strip('\s')
 
         ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
-        
+        #Forming symbols
+
+        self.symData = {key:None for key in symbols(variables)}
+
+        #Open up secondary Window to retrieve data for sample calculation
+        self._running = False
+
+        self.secondWindow = secondaryWindow(self.symData, self._running)
+        self.secondWindow.show()
+
+        while not self._running:
+
+            QtGui.qApp.processEvents()
+            time.sleep(0.05)
+
+        print(sampleCalculations(partialDerivative(self.symData, sympify(equation)), self.symData))
+
+
+
+
+
 class secondaryWindow(QWidget):
     
-    def __init__(self):
+    def __init__(self, symData, _running):
         super().__init__()
 
         '''Data Fields'''
         self.eqData = dict()
         self.errData = dict()
+        self.symData = symData
+        self._running = _running
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
         self.resize(self.sizeHint())
         
-
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.setLayout(self.verticalLayout)
 
+        #GroupBoxes - Frames with labels
         self.topGroupBox = self.designGroupBox('Equation - Sample Calculation')      
         self.bottomGroupBox = self.designGroupBox('Error - Sample Calculation')
+        self.sampleSubmitButton = QtWidgets.QPushButton("Submit")
+        self.sampleSubmitButton.clicked.connect(self.handleSubmit)
 
         #setting Group Box layout
-        self.topGroupBox1formLT = QFormLayout(self.topGroupBox)
-        self.topGroupBox2formLT = QFormLayout(self.bottomGroupBox)
+        self.topGroupBoxformLT = QFormLayout(self.topGroupBox)
+        self.bottomGroupBoxformLT = QFormLayout(self.bottomGroupBox)
 
-
-   
         self.verticalLayout.addWidget(self.topGroupBox)
         self.verticalLayout.addWidget(self.bottomGroupBox)
-        self.addInputs(['cow','dog','monkey','Mosquito', 'Rhino'], self.topGroupBox1formLT, self.topGroupBox)
-        self.addInputs(['Noah','Hannah','Chris', 'Mauro'], self.topGroupBox2formLT, self.bottomGroupBox)
+        self.verticalLayout.addWidget(self.sampleSubmitButton)
+
+        self.addInputs(self.symData, self.topGroupBoxformLT, self.topGroupBox)
+        self.addInputs(self.symData, self.bottomGroupBoxformLT, self.bottomGroupBox)
+
 
     def designGroupBox(self, boxTitle):
 
@@ -122,20 +159,34 @@ class secondaryWindow(QWidget):
         #styling
         return box
 
-    def addInputs(self, variables, layout, topGroupBox):
+    def addInputs(self, variables, layout, GroupBox):
 
         self.row = 0
 
         for variable in variables:
 
-            self.inputLabel = QLabel(variable, topGroupBox)
-            self.input = QLineEdit(topGroupBox)
-            self.input.setPlaceholderText(variable)
+            self.inputLabel = QLabel(str(variable), GroupBox)
+            self.input = QLineEdit(GroupBox)
+            self.input.setObjectName(str(variable))
+            self.input.setPlaceholderText(str(variable))
             layout.setWidget(self.row, QFormLayout.LabelRole, self.inputLabel)
             layout.setWidget(self.row, QFormLayout.FieldRole,self.input)
             self.row += 1
+            #print(GroupBox.findChild(QLineEdit, variable))
         
         return layout
+
+    def handleSubmit(self):
+        """ method to retrieve sample calculation data and pass to main window."""
+        
+        for var in self.symData:
+            equationBox = self.topGroupBox.findChild(QLineEdit, str(var))
+            self.symData[var] = equationBox.text()
+            equationBox.clear()
+        self._running = True
+        self.close()
+
+
 '''Error Window Class Definition here'''
 #class ErrorWindow(QWidget):
     
@@ -155,8 +206,8 @@ def run():
     app = QApplication(sys.argv)
     app.setStyle(QCommonStyle())
     window = mainWindow()
-    myWindow = secondaryWindow()
-    myWindow.show()
+    # myWindow = secondaryWindow()
+    # myWindow.show()
     window.show()
     sys.exit(app.exec_())
 

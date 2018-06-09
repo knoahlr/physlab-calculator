@@ -1,4 +1,4 @@
-from sympy import sympify, latex, diff
+from sympy import sympify, latex, diff, symbols
 
 #Variables
 def partialDerivative(variables, expression):
@@ -6,12 +6,13 @@ def partialDerivative(variables, expression):
     Variables should be a tuple of sympy symbols
     Returns final expression    
     """
+    diffExpression = 0
 
     for variable in variables:
 
-        expression += diff(expression, variable)
-        
-    return expression
+        diffExpression +=  diff(expression, variable)
+
+    return diffExpression
 
 def tableDesign():
 
@@ -24,6 +25,11 @@ def sampleCalculations(expression, variables):
     Variables should be a tuple of sympy symbols
     """
 
-    return '{0}//{1}'. format(latex(expression), latex(expression.evalf(variables))) 
+    return '={0} // ={1}'. format( latex(expression), latex(expression.evalf(subs=variables)) ) 
 
 
+if __name__ == '__main__':
+    expression = sympify('x^2 +(a^3)*b')
+    x, a, b = symbols('x a b')
+    variables =  {x:4, a:3, b:7}
+    print(sampleCalculations(partialDerivative(variables, expression), variables))

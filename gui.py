@@ -21,8 +21,10 @@ class mainWindow(QMainWindow):
 
         '''Fields'''
         self.equation_variables = {'equation':None,'variables':None}
-        #self.secondWindow = secondaryWindow()
+        self.equation = None
+        self.variables = None
         self.symData = {}
+        self.secondThread = None
 
 
         self.setMinimumSize(800, 300)
@@ -60,9 +62,9 @@ class mainWindow(QMainWindow):
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.variablesLineEdit)
 
         #Latex Output
-        self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
-        self.textEdit.setObjectName("textEdit")
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.textEdit)
+        self.latexOutput = QtWidgets.QTextEdit(self.centralwidget)
+        self.latexOutput.setObjectName("textEdit")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.latexOutput)
 
         #submit button
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
@@ -85,47 +87,44 @@ class mainWindow(QMainWindow):
         self.move(topGroupBoxGm.topLeft())
 
     def handleSubmit(self):
+
         self.equation_variables['equation'] = self.equationLineEdit.text()
         self.equation_variables['variables'] = self.variablesLineEdit.text()
         self.equationLineEdit.clear()
         self.variablesLineEdit.clear()
 
-        variables = self.equation_variables['variables'].strip('\s').split(',')
-        print(self.equation_variables['variables'])
-        equation = self.equation_variables['equation'].strip('\s')
+        self.variables = self.equation_variables['variables'].strip('\s').split(',')
+
+        self.equation = self.equation_variables['equation'].strip('\s')
 
         ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
         #Forming symbols
 
-        self.symData = {key:None for key in symbols(variables)}
+        self.symData = {key:None for key in symbols(self.variables)}
 
-        #Open up secondary Window to retrieve data for sample calculation
         self._running = False
 
-        self.secondWindow = secondaryWindow(self.symData, self._running)
+        self.secondWindow = secondaryWindow(self.symData, self.handleSampleSubmit)
         self.secondWindow.show()
+  
+    def handleSampleSubmit(self):
 
-        while not self._running:
-
-            QtGui.qApp.processEvents()
-            time.sleep(0.05)
-
-        print(sampleCalculations(partialDerivative(self.symData, sympify(equation)), self.symData))
-
+        self.latexOutput.setText(sampleCalculations(partialDerivative(self.symData, sympify(self.equation)), self.symData))
 
 
 
 
 class secondaryWindow(QWidget):
     
-    def __init__(self, symData, _running):
+    def __init__(self, symData, handleSampleSubmit):
+        
         super().__init__()
 
         '''Data Fields'''
         self.eqData = dict()
         self.errData = dict()
         self.symData = symData
-        self._running = _running
+        self.handleSampleSubmit = handleSampleSubmit
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
@@ -156,7 +155,7 @@ class secondaryWindow(QWidget):
     def designGroupBox(self, boxTitle):
 
         box = QGroupBox(boxTitle)
-        #styling
+
         return box
 
     def addInputs(self, variables, layout, GroupBox):
@@ -167,12 +166,15 @@ class secondaryWindow(QWidget):
 
             self.inputLabel = QLabel(str(variable), GroupBox)
             self.input = QLineEdit(GroupBox)
+
             self.input.setObjectName(str(variable))
             self.input.setPlaceholderText(str(variable))
+            
             layout.setWidget(self.row, QFormLayout.LabelRole, self.inputLabel)
             layout.setWidget(self.row, QFormLayout.FieldRole,self.input)
+            
             self.row += 1
-            #print(GroupBox.findChild(QLineEdit, variable))
+
         
         return layout
 
@@ -180,15 +182,58 @@ class secondaryWindow(QWidget):
         """ method to retrieve sample calculation data and pass to main window."""
         
         for var in self.symData:
+
             equationBox = self.topGroupBox.findChild(QLineEdit, str(var))
             self.symData[var] = equationBox.text()
-            equationBox.clear()
-        self._running = True
-        self.close()
+
+        self.validateInput()
+
+    def validateInput(self):
+
+        ''' Integer validation '''
+        invalidInputs = []
+
+        for var in self.symData:
+            # print(self.symData[var].isnumeric())
+        
+            if not self.symData[var].isnumeric():
+                self.topGroupBox.findChild(QLineEdit, str(var)).clear()
+                invalidInputs.append(var)
+
+        if not invalidInputs:
+            self.handleSampleSubmit()
+            self.close()
+        else:
+            message = "{0} has to be integer".format(var)
+            self.error_window = ErrorWindow(message)
+            self.error_window.show()
 
 
 '''Error Window Class Definition here'''
-#class ErrorWindow(QWidget):
+class ErrorWindow(QWidget):
+
+    def __init__(self, errorInfo):
+
+        super().__init__()
+        self.setWindowTitle('Error Message')
+        self.resize(self.minimumSizeHint())
+
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.verticalLayout)
+        self.verticalLayout.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.label = QLabel(errorInfo)
+        self.okButton = QPushButton('Ok')
+        
+        self.verticalLayout.addWidget(self.label)
+        self.verticalLayout.addWidget(self.okButton)
+
+        self.okButton.clicked.connect(self.closeWindow)
+
+    def closeWindow(self):
+
+        self.close()
+
     
 
 '''Line and Text edit custom implementation here'''
@@ -198,7 +243,21 @@ class secondaryWindow(QWidget):
 #class LatexOutEdit(QtWidgets.QTextEdit):
 
 
+#class secondaryThreads(QtCore.QThread):
+    
+    # def __init__(self, secondaryWindow):
 
+    #     super().__init__()
+    #     self.window = secondaryWindow 
+
+    # def obtainSampledata(self):
+    #     #app = QApplication(sys.argv)
+    #     self.window.show()
+    #     #sys.exit(app.exec_())
+
+    # def run(self):
+    #     print('here')
+    #     self.obtainSampledata()
 
     
     

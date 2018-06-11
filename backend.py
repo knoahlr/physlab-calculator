@@ -25,8 +25,15 @@ def sampleCalculations(expression, variables):
     Variables should be a tuple of sympy symbols
     """
 
-    return '={0} // ={1}'. format( latex(expression), latex(expression.evalf(subs=variables)) ) 
+    return '={0} // ={1}'. format( latex(expression), latex(expression.evalf(subs=variables)) )
 
+def isNumber(s):
+    ''' Implemented in validating sample calculation inputs'''
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 if __name__ == '__main__':
     expression = sympify('x^2 +(a^3)*b')

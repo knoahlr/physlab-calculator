@@ -3,9 +3,9 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
 from sympy import symbols, sympify
-from backend import sampleCalculations, partialDerivative
+from backend import sampleCalculations, partialDerivative, isNumber
 
-import time, ctypes, re
+import time, ctypes, re, unicodedata
 
 
 # import main
@@ -146,7 +146,7 @@ class mainWindow(QMainWindow):
             sympify(self.equation)
 
             if not self.variables:
-                self.errorWindow = ErrorWindow('There has to be atleast one differentiable variable bro')
+                self.errorWindow = ErrorWindow('There has to be atleast one differentiable variable bro', self.icon)
                 self.variablesLineEdit.clear()
                 self.errorWindow.show()
 
@@ -157,7 +157,7 @@ class mainWindow(QMainWindow):
 
             windowMsg = e
             self.equationLineEdit.clear()
-            self.errorWindow = ErrorWindow(windowMsg.expr)
+            self.errorWindow = ErrorWindow(windowMsg.expr, self.icon)
             self.errorWindow.show()
 
             return False
@@ -189,6 +189,7 @@ class secondaryWindow(QWidget):
         #GroupBoxes - Frames with labels
         self.topGroupBox = self.designGroupBox('Equation - Sample Calculation')      
         self.bottomGroupBox = self.designGroupBox('Error - Sample Calculation')
+        self.bottomGroupBox.setObjectName('errorVariables')
         self.sampleSubmitButton = QtWidgets.QPushButton("Submit")
         self.sampleSubmitButton.clicked.connect(self.handleSubmit)
 
@@ -215,8 +216,13 @@ class secondaryWindow(QWidget):
         self.row = 0
 
         for variable in variables:
-
-            self.inputLabel = QLabel(str(variable), GroupBox)
+            
+            
+            if re.search('errorVariables', GroupBox.objectName()): 
+                self.inputLabel = QLabel('{0}{1}'.format(unicodedata.lookup("GREEK SMALL LETTER SIGMA"), str(variable)), GroupBox)
+            
+            else: self.inputLabel = QLabel(str(variable), GroupBox)
+            
             self.input = QLineEdit(GroupBox)
 
             self.input.setObjectName(str(variable))
@@ -248,27 +254,31 @@ class secondaryWindow(QWidget):
         for var in self.symData:
             # print(self.symData[var].isnumeric())
         
-            if not self.symData[var].isnumeric():
+            if not isNumber(self.symData[var]):
                 self.topGroupBox.findChild(QLineEdit, str(var)).clear()
                 invalidInputs.append(var)
 
         if not invalidInputs:
             self.handleSampleSubmit()
             self.close()
+
         else:
-            message = "{0} has to be integer".format(var)
-            self.error_window = ErrorWindow(message)
+            message = "{0} must be numeric values".format(str(invalidInputs).strip('[]'))
+            self.error_window = ErrorWindow(message, self.icon)
             self.error_window.show()
 
 
 '''Error Window Class Definition here'''
 class ErrorWindow(QWidget):
 
-    def __init__(self, errorInfo):
+    def __init__(self, errorInfo, icon):
 
         super().__init__()
         self.setWindowTitle('Error Message')
+        self.icon = icon
         self.resize(self.minimumSizeHint())
+
+        if self.icon: self.setWindowIcon(self.icon)
 
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self.verticalLayout)

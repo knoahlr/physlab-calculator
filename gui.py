@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import *
 from sympy import symbols, sympify
 from backend import sampleCalculations, partialDerivative
 
-import time
+import time, ctypes, re
+
 
 # import main
 
@@ -25,57 +26,81 @@ class mainWindow(QMainWindow):
         self.variables = None
         self.symData = {}
         self.secondThread = None
+        self.icon = QtGui.QIcon('atom.png')
 
 
-        self.setMinimumSize(800, 300)
+        self.setMinimumSize(self.minimumSizeHint())
         self.setWindowTitle("Error Propagation")
+        self.setWindowIcon(self.icon)
    
         self.centralwidget = QtWidgets.QWidget()
-        self.centralwidget.setObjectName('centralWidget')
 
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.verticalLayout.setAlignment(QtCore.Qt.AlignCenter)
         
         self.formLayout = QtWidgets.QFormLayout()
-        self.formLayout.setObjectName("formLayout")
+        
+        #Box Frames
+        self.EqVarGroupBox = self.designGroupBox('Equation and Variables Input')
+        self.latexGroupBox = self.designGroupBox('Latex Output')
+        
+        #Add layout to frames
+        self.EqVarLayout = QFormLayout(self.EqVarGroupBox)
+        self.latextLayout = QFormLayout(self.latexGroupBox)
+        self.EqVarLayout.setAlignment(QtCore.Qt.AlignHCenter)
+        self.latextLayout.setAlignment(QtCore.Qt.AlignHCenter)
+
 
         #Labels 
         self.equationLabel = QtWidgets.QLabel("Equation", self.centralwidget)
-        self.equationLabel.setObjectName("equationLabel")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.equationLabel)
 
+      
         self.variablesLabel = QtWidgets.QLabel("variables", self.centralwidget)
-        self.variablesLabel.setObjectName("variablesLabel")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.variablesLabel)
 
-        self.label = QtWidgets.QLabel("Latex Output", self.centralwidget)
-        self.label.setObjectName("label")
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label)
+
+        self.latexLabel = QtWidgets.QLabel("Latex Output", self.centralwidget)
 
         #Equation and variables text editors
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.equationLineEdit.setObjectName("equationLineEdit")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.equationLineEdit)
 
         self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.variablesLineEdit.setObjectName("variablesLineEdit")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.variablesLineEdit)
+
 
         #Latex Output
         self.latexOutput = QtWidgets.QTextEdit(self.centralwidget)
-        self.latexOutput.setObjectName("textEdit")
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.latexOutput)
+
 
         #submit button
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
-        self.submitButton.setObjectName("pushButton")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.submitButton)
+
 
         self.submitButton.clicked.connect(self.handleSubmit)
 
-        self.verticalLayout.addLayout(self.formLayout)
+
+        self.addFields(0,self.EqVarLayout, self.equationLineEdit, self.equationLabel)
+        self.addFields(1, self.EqVarLayout, self.variablesLineEdit, self.variablesLabel)
+        self.addFields(0,self.latextLayout, self.latexOutput, self.latexLabel)
+        self.EqVarLayout.setWidget(2, QFormLayout.FieldRole, self.submitButton)
+
+        #self.verticalLayout.addLayout(self.formLayout)
+        self.verticalLayout.addWidget(self.EqVarGroupBox)
+        self.verticalLayout.addWidget(self.latexGroupBox)
+
 
         self.setCentralWidget(self.centralwidget)
+
+    
+    
+    def addFields(self, row, layout, editBox, label):
+
+        layout.setWidget(row, QFormLayout.LabelRole,label)
+        layout.setWidget(row, QFormLayout.FieldRole, editBox)
+
+    def designGroupBox(self, boxTitle):
+
+        box = QGroupBox(boxTitle)
+
+        return box
 
         
     def center(self):#Center Main window in active screen. Uses cursor position as reference.
@@ -90,33 +115,58 @@ class mainWindow(QMainWindow):
 
         self.equation_variables['equation'] = self.equationLineEdit.text()
         self.equation_variables['variables'] = self.variablesLineEdit.text()
-        self.equationLineEdit.clear()
-        self.variablesLineEdit.clear()
 
-        self.variables = self.equation_variables['variables'].strip('\s').split(',')
+
+        self.variables = re.findall(r"[a-zA-Z']+", self.equation_variables['variables']) #strip('\s').split(',')
 
         self.equation = self.equation_variables['equation'].strip('\s')
 
-        ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
-        #Forming symbols
+        if self.validateInput():
 
-        self.symData = {key:None for key in symbols(self.variables)}
+            ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
+            #Forming symbols
 
-        self._running = False
+            self.symData = {key:None for key in symbols(self.variables)}
 
-        self.secondWindow = secondaryWindow(self.symData, self.handleSampleSubmit)
-        self.secondWindow.show()
+            self._running = False
+
+            self.secondWindow = secondaryWindow(self.symData, self.handleSampleSubmit, self.icon)
+            self.secondWindow.show()
   
     def handleSampleSubmit(self):
 
         self.latexOutput.setText(sampleCalculations(partialDerivative(self.symData, sympify(self.equation)), self.symData))
 
+    def validateInput(self):
 
+        '''Equation and Variables validation'''
 
+        try:
+
+            sympify(self.equation)
+
+            if not self.variables:
+                self.errorWindow = ErrorWindow('There has to be atleast one differentiable variable bro')
+                self.variablesLineEdit.clear()
+                self.errorWindow.show()
+
+                return False
+
+  
+        except Exception as e:
+
+            windowMsg = e
+            self.equationLineEdit.clear()
+            self.errorWindow = ErrorWindow(windowMsg.expr)
+            self.errorWindow.show()
+
+            return False
+
+        return True
 
 class secondaryWindow(QWidget):
     
-    def __init__(self, symData, handleSampleSubmit):
+    def __init__(self, symData, handleSampleSubmit, icon):
         
         super().__init__()
 
@@ -125,10 +175,12 @@ class secondaryWindow(QWidget):
         self.errData = dict()
         self.symData = symData
         self.handleSampleSubmit = handleSampleSubmit
+        self.icon = icon
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
         self.resize(self.sizeHint())
+        if self.icon: self.setWindowIcon(self.icon)
         
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
@@ -260,7 +312,6 @@ class ErrorWindow(QWidget):
     #     self.obtainSampledata()
 
     
-    
 def run():
     app = QApplication(sys.argv)
     app.setStyle(QCommonStyle())
@@ -271,4 +322,8 @@ def run():
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
+    
+    myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+    ''' https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7/1552105#1552105 '''
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     run()

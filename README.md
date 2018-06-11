@@ -1,7 +1,10 @@
 # physlab-calculator
 
-This script is meant to accept a .csv containing an equation, and experimentally obtained values for each variable in the equation.
+Error Propagation tool.
 
-The script will then output a sample calculation of the first row of values and output that in LaTeX for you to put in your report.
+Designed to find the error propagation equation and sample calculation. It then outputs result in latex form to copy paste into report. 
 
-Most significantly however this will also find the error formula from the given formula and then output it explicitly with the equation and a sample calculation in LaTeX.
+This small python3 program makes heavy use of the PyQt5 framework. If not installed in your system, you will be prompted to install it when you run it.
+
+You can also do so yourself by  running
+pip install pyqt5

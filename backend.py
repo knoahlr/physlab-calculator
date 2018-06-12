@@ -1,4 +1,11 @@
-from sympy import sympify, latex, diff, symbols
+from sympy import sympify, latex, diff, symbols, sqrt
+
+SIGMA = 'sigma_'
+
+EXPL = r'\intertext{The Corresponding error expression is,}'
+
+
+
 
 #Variables
 def partialDerivative(variables, expression):
@@ -10,22 +17,31 @@ def partialDerivative(variables, expression):
 
     for variable in variables:
 
-        diffExpression +=  diff(expression, variable)
+        diffExpression += (diff(expression, variable)  * sympify('{0}{1}'.format(SIGMA, str(variable))))**2
 
-    return diffExpression
+    return sqrt(diffExpression)
 
 def tableDesign():
 
     """ Present sample calculation data on table """
 
 
-def sampleCalculations(expression, variables):
+def sampleCalculations(expression, errorExpression, samplData):
     """ 
     Show sample calculation, with symbols replaced by numbers
     Variables should be a tuple of sympy symbols
     """
+    eqData = samplData[0]
+    errorData = samplData[1]
 
-    return '={0} // ={1}'. format( latex(expression), latex(expression.evalf(subs=variables)) )
+    expression = sympify(expression)
+    expressionAns = latex(expression.evalf(subs=eqData))
+
+    errorExprAns = latex(errorExpression.evalf(subs=dict(eqData, **errorData)))
+
+    string_block = r'E&= {0} \\ E&= {1} \\ {2} \sigma_E &= {3} \\ \sigma_E &= {4}'.format(latex(expression), expressionAns, EXPL, latex(errorExpression), errorExprAns)
+
+    return string_block
 
 def isNumber(s):
     ''' Implemented in validating sample calculation inputs'''

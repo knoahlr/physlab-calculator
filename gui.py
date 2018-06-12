@@ -3,7 +3,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
 from sympy import symbols, sympify
-from backend import sampleCalculations, partialDerivative, isNumber
+from backend import sampleCalculations, partialDerivative, isNumber, SIGMA
 
 import time, ctypes, re, unicodedata
 
@@ -24,7 +24,7 @@ class mainWindow(QMainWindow):
         self.equation_variables = {'equation':None,'variables':None}
         self.equation = None
         self.variables = None
-        self.symData = {}
+
         self.secondThread = None
         self.icon = QtGui.QIcon('atom.png')
 
@@ -62,8 +62,10 @@ class mainWindow(QMainWindow):
 
         #Equation and variables text editors
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.equationLineEdit.setText('x^3 + y^2 + z')
 
         self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.variablesLineEdit.setText('x, y, z')
 
 
         #Latex Output
@@ -126,16 +128,18 @@ class mainWindow(QMainWindow):
             ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
             #Forming symbols
 
-            self.symData = {key:None for key in symbols(self.variables)}
+
 
             self._running = False
 
-            self.secondWindow = secondaryWindow(self.symData, self.handleSampleSubmit, self.icon)
+            self.secondWindow = secondaryWindow(self.equation, self.variables, self.handleSampleSubmit, self.icon, self.latexOutput)
             self.secondWindow.show()
   
     def handleSampleSubmit(self):
 
-        self.latexOutput.setText(sampleCalculations(partialDerivative(self.symData, sympify(self.equation)), self.symData))
+        print(dict(self.symData, **self.errData))
+
+        self.latexOutput.setText(sampleCalculations(partialDerivative(self.symData, sympify(self.equation)), dict(self.symData, **self.errData)))
 
     def validateInput(self):
 
@@ -166,16 +170,22 @@ class mainWindow(QMainWindow):
 
 class secondaryWindow(QWidget):
     
-    def __init__(self, symData, handleSampleSubmit, icon):
+    def __init__(self, equation, variables, handleSampleSubmit, icon, latexOutput):
         
         super().__init__()
 
         '''Data Fields'''
-        self.eqData = dict()
-        self.errData = dict()
-        self.symData = symData
+
+        self.variables = variables
+        self.equation = equation
+
+        self.symData = {str(key):None for key in symbols(self.variables)}
+        self.errData = {'{0}{1}'.format(SIGMA, key):None for key in symbols(self.variables)}
+
         self.handleSampleSubmit = handleSampleSubmit
         self.icon = icon
+
+        self.latexOut = latexOutput
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
@@ -201,8 +211,8 @@ class secondaryWindow(QWidget):
         self.verticalLayout.addWidget(self.bottomGroupBox)
         self.verticalLayout.addWidget(self.sampleSubmitButton)
 
-        self.addInputs(self.symData, self.topGroupBoxformLT, self.topGroupBox)
-        self.addInputs(self.symData, self.bottomGroupBoxformLT, self.bottomGroupBox)
+        self.addInputs(self.variables, self.topGroupBoxformLT, self.topGroupBox)
+        self.addInputs(self.variables, self.bottomGroupBoxformLT, self.bottomGroupBox)
 
 
     def designGroupBox(self, boxTitle):
@@ -215,10 +225,11 @@ class secondaryWindow(QWidget):
 
         self.row = 0
 
-        for variable in variables:
+        for variable in self.variables:
             
             
             if re.search('errorVariables', GroupBox.objectName()): 
+
                 self.inputLabel = QLabel('{0}{1}'.format(unicodedata.lookup("GREEK SMALL LETTER SIGMA"), str(variable)), GroupBox)
             
             else: self.inputLabel = QLabel(str(variable), GroupBox)
@@ -238,13 +249,33 @@ class secondaryWindow(QWidget):
 
     def handleSubmit(self):
         """ method to retrieve sample calculation data and pass to main window."""
-        
-        for var in self.symData:
+        #print(self.symData, self.errData)
 
-            equationBox = self.topGroupBox.findChild(QLineEdit, str(var))
-            self.symData[var] = equationBox.text()
+        
+        # for var in self.symData:
+
+        #     sampEquationInput= self.topGroupBox.findChild(QLineEdit, str(var))
+        #     self.symData[var] = sampEquationInput.text()
+
+        # for var in self.errData:
+        #     sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
+        #     self.errData[var] = sampErrInput.text()
+            
+        for var in self.variables:
+
+            sampEquationInput= self.topGroupBox.findChild(QLineEdit, str(var))
+            self.symData[var] = sampEquationInput.text()
+
+            sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
+            self.errData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text()
 
         self.validateInput()
+
+        errorExpression = partialDerivative(self.symData, sympify(self.equation))
+
+        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData])
+
+        self.latexOut.setText(latexOutput)
 
     def validateInput(self):
 
@@ -258,10 +289,14 @@ class secondaryWindow(QWidget):
                 self.topGroupBox.findChild(QLineEdit, str(var)).clear()
                 invalidInputs.append(var)
 
-        if not invalidInputs:
-            self.handleSampleSubmit()
-            self.close()
+        for var in self.errData:
+            if not isNumber(self.errData[var]):
+                self.bottomGroupBox.findChild(QLineEdit, str(var)).clear()
+                invalidInputs.append(var)
 
+        if not invalidInputs: return 
+            # self.handleSampleSubmit()
+            #self.close()
         else:
             message = "{0} must be numeric values".format(str(invalidInputs).strip('[]'))
             self.error_window = ErrorWindow(message, self.icon)

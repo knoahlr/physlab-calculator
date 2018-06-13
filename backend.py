@@ -1,11 +1,23 @@
 from sympy import sympify, latex, diff, symbols, sqrt
+from re import sub
 
 SIGMA = 'sigma_'
 
 EXPL = r'\intertext{The Corresponding error expression is,}'
 
+def intermediateExpression(expression, variables, eqData, errorData):
+
+    for variable in variables:
+
+        sigmaRegEx = '{0}{1}'.format(SIGMA, variable)
+
+        expression = sub(sigmaRegEx, str(errorData[sigmaRegEx]), str(expression))
+
+        expression = sub(str(variable), str(eqData[variable]), str(expression))
 
 
+
+    return sympify(expression, evaluate=False)
 
 #Variables
 def partialDerivative(variables, expression):
@@ -26,7 +38,7 @@ def tableDesign():
     """ Present sample calculation data on table """
 
 
-def sampleCalculations(expression, errorExpression, samplData):
+def sampleCalculations(expression, errorExpression, samplData, variables):
     """ 
     Show sample calculation, with symbols replaced by numbers
     Variables should be a tuple of sympy symbols
@@ -38,8 +50,13 @@ def sampleCalculations(expression, errorExpression, samplData):
     expressionAns = latex(expression.evalf(subs=eqData))
 
     errorExprAns = latex(errorExpression.evalf(subs=dict(eqData, **errorData)))
+    
+    errInterExpression = latex(intermediateExpression(expression, variables, eqData, errorData))
 
-    string_block = r'E&= {0} \\ E&= {1} \\ {2} \sigma_E &= {3} \\ \sigma_E &= {4}'.format(latex(expression), expressionAns, EXPL, latex(errorExpression), errorExprAns)
+    eqInterExpression = latex(intermediateExpression(errorExpression, variables, eqData, errorData))
+
+    string_block = r'E&= {0} \\ E&={1} \\ E&= {2} \\ {3} \sigma_E &= {4} \\ \sigma_E &= {5} \\ \sigma_E &= {6}' \
+    .format(latex(expression), errInterExpression, expressionAns, EXPL, latex(errorExpression), eqInterExpression,errorExprAns)
 
     return string_block
 

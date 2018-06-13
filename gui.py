@@ -25,70 +25,65 @@ class mainWindow(QMainWindow):
         self.equation = None
         self.variables = None
 
-        self.secondThread = None
+        ''' Window Properties '''
         self.icon = QtGui.QIcon('atom.png')
-
-
         self.setMinimumSize(self.minimumSizeHint())
         self.setWindowTitle("Error Propagation")
         self.setWindowIcon(self.icon)
-   
-        self.centralwidget = QtWidgets.QWidget()
 
+        ''' Setting window layout and central widget '''
+        self.centralwidget = QtWidgets.QWidget()
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setAlignment(QtCore.Qt.AlignCenter)
-        
         self.formLayout = QtWidgets.QFormLayout()
         
-        #Box Frames
+        '''Box Frames'''
+        self.formatGroupBox = self.designGroupBox('Equation format')
         self.EqVarGroupBox = self.designGroupBox('Equation and Variables Input')
         self.latexGroupBox = self.designGroupBox('Latex Output')
         
-        #Add layout to frames
+        '''Add layout to frames'''
+        self.eqFormatLayout = QFormLayout(self.formatGroupBox)
         self.EqVarLayout = QFormLayout(self.EqVarGroupBox)
         self.latextLayout = QFormLayout(self.latexGroupBox)
+
+        self.eqFormatLayout.setAlignment(QtCore.Qt.AlignHCenter)
         self.EqVarLayout.setAlignment(QtCore.Qt.AlignHCenter)
         self.latextLayout.setAlignment(QtCore.Qt.AlignHCenter)
 
 
-        #Labels 
+        ''' Labels '''
         self.equationLabel = QtWidgets.QLabel("Equation", self.centralwidget)
-
-      
         self.variablesLabel = QtWidgets.QLabel("variables", self.centralwidget)
-
-
         self.latexLabel = QtWidgets.QLabel("Latex Output", self.centralwidget)
 
-        #Equation and variables text editors
+        '''Equation and variables text editors'''
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.equationLineEdit.setText('x^3 + y^2 + z')
-
+        self.equationLineEdit.setText('cos(x) + sin(y)^2 +asin(z)^3')
         self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.variablesLineEdit.setText('x, y, z')
 
 
-        #Latex Output
+        '''Latex Output'''
         self.latexOutput = QtWidgets.QTextEdit(self.centralwidget)
 
 
-        #submit button
+        '''submit button'''
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
-
-
         self.submitButton.clicked.connect(self.handleSubmit)
 
 
         self.addFields(0,self.EqVarLayout, self.equationLineEdit, self.equationLabel)
         self.addFields(1, self.EqVarLayout, self.variablesLineEdit, self.variablesLabel)
         self.addFields(0,self.latextLayout, self.latexOutput, self.latexLabel)
+
+
         self.EqVarLayout.setWidget(2, QFormLayout.FieldRole, self.submitButton)
 
-        #self.verticalLayout.addLayout(self.formLayout)
+        '''Adding layouts and widgets to window'''
+        self.verticalLayout.addWidget(self.formatGroupBox)
         self.verticalLayout.addWidget(self.EqVarGroupBox)
         self.verticalLayout.addWidget(self.latexGroupBox)
-
-
         self.setCentralWidget(self.centralwidget)
 
     
@@ -269,7 +264,7 @@ class secondaryWindow(QWidget):
 
         errorExpression = partialDerivative(self.symData, sympify(self.equation))
 
-        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData])
+        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData], self.variables)
 
         self.latexOut.setText(latexOutput)
 

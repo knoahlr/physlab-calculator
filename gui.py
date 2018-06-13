@@ -8,9 +8,6 @@ from backend import sampleCalculations, partialDerivative, isNumber, SIGMA
 import time, ctypes, re, unicodedata
 
 
-# import main
-
-
 class mainWindow(QMainWindow):
 
     """ 

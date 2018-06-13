@@ -62,7 +62,7 @@ class mainWindow(QMainWindow):
 
         #Equation and variables text editors
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.equationLineEdit.setText('x^3 + y^2 + z')
+        self.equationLineEdit.setText('cos(x) + sin(y)^2 +asin(z)^3')
 
         self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.variablesLineEdit.setText('x, y, z')
@@ -269,7 +269,7 @@ class secondaryWindow(QWidget):
 
         errorExpression = partialDerivative(self.symData, sympify(self.equation))
 
-        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData])
+        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData], self.variables)
 
         self.latexOut.setText(latexOutput)
 

@@ -1,5 +1,6 @@
 from sympy import sympify, latex, diff, symbols, sqrt
 from re import sub
+import sys
 
 SIGMA = 'sigma_'
 
@@ -13,9 +14,9 @@ def intermediateExpression(expression, variables, eqData, errorData):
 
         expression = sub(sigmaRegEx, str(errorData[sigmaRegEx]), str(expression))
 
-        expression = sub(str(variable), str(eqData[variable]), str(expression))
+        expression = sub('{0}(?=[^a-zA-Z])'.format(str(variable)), str(eqData[variable]), str(expression))
 
-
+    print(expression)
 
     return sympify(expression, evaluate=False)
 
@@ -45,12 +46,14 @@ def sampleCalculations(expression, errorExpression, samplData, variables):
     """
     eqData = samplData[0]
     errorData = samplData[1]
+    print(eqData, errorData, end='\n')
 
     expression = sympify(expression)
     expressionAns = latex(expression.evalf(subs=eqData))
 
     errorExprAns = latex(errorExpression.evalf(subs=dict(eqData, **errorData)))
-    
+    print(str(expression) +'\n')
+    print(errorExpression)
     errInterExpression = latex(intermediateExpression(expression, variables, eqData, errorData))
 
     eqInterExpression = latex(intermediateExpression(errorExpression, variables, eqData, errorData))
@@ -71,5 +74,14 @@ def isNumber(s):
 if __name__ == '__main__':
     expression = sympify('x^2 +(a^3)*b')
     x, a, b = symbols('x a b')
-    variables =  {x:4, a:3, b:7}
-    print(sampleCalculations(partialDerivative(variables, expression), variables))
+
+    variables =  {'x':4, 'y':3, 'z':7}
+
+    eqData, errorData = {'x': '23', 'y': '23', 'z': '23'}, {'sigma_x': '0.023', 'sigma_y': '0.023', 'sigma_z': '0.023'}
+
+
+    #print(sampleCalculations(partialDerivative(variables, expression), variables))
+    expression = 'exp(3*z)*asin(z)**3 + sin(y)**2 + cos(x)'
+    errorExpression = 'sqrt(sigma_x**2*sin(x)**2 + 4*sigma_y**2*sin(y)**2*cos(y)**2 + sigma_z**2*(3*exp(3*z)*asin(z)**3 + 3*exp(3*z)*asin(z)**2/sqrt(-z**2 + 1))**2)'
+    
+    print(intermediateExpression(errorExpression, variables, eqData, errorData))

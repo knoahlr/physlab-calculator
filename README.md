@@ -5,4 +5,4 @@ Designed to find the error propagation equation and sample calculation. It then 
 This small python3 program makes heavy use of the **PyQt5** framework. If not installed in your system, you will be prompted to install it when you run it.
 
 You can also do so yourself by  running
- >`pip install pyqt5`
+ ```pip install pyqt5```

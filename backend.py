@@ -16,8 +16,6 @@ def intermediateExpression(expression, variables, eqData, errorData):
 
         expression = sub('{0}(?=[^a-zA-Z])'.format(str(variable)), str(eqData[variable]), str(expression))
 
-    print(expression)
-
     return sympify(expression, evaluate=False)
 
 #Variables
@@ -46,17 +44,21 @@ def sampleCalculations(expression, errorExpression, samplData, variables):
     """
     eqData = samplData[0]
     errorData = samplData[1]
-    print(eqData, errorData, end='\n')
 
     expression = sympify(expression)
     expressionAns = latex(expression.evalf(subs=eqData))
 
     errorExprAns = latex(errorExpression.evalf(subs=dict(eqData, **errorData)))
-    print(str(expression) +'\n')
-    print(errorExpression)
-    errInterExpression = latex(intermediateExpression(expression, variables, eqData, errorData))
 
-    eqInterExpression = latex(intermediateExpression(errorExpression, variables, eqData, errorData))
+    try:
+
+        errInterExpression = latex(intermediateExpression(expression, variables, eqData, errorData))
+        eqInterExpression = latex(intermediateExpression(errorExpression, variables, eqData, errorData))
+    
+    except Exception as e:
+
+        errInterExpression = "\\"
+        eqInterExpression  = "\\"
 
     string_block = r'E&= {0} \\ E&={1} \\ E&= {2} \\ {3} \sigma_E &= {4} \\ \sigma_E &= {5} \\ \sigma_E &= {6}' \
     .format(latex(expression), errInterExpression, expressionAns, EXPL, latex(errorExpression), eqInterExpression,errorExprAns)

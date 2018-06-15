@@ -237,17 +237,6 @@ class secondaryWindow(QWidget):
 
     def handleSubmit(self):
         """ method to retrieve sample calculation data and pass to main window."""
-        #print(self.symData, self.errData)
-
-        
-        # for var in self.symData:
-
-        #     sampEquationInput= self.topGroupBox.findChild(QLineEdit, str(var))
-        #     self.symData[var] = sampEquationInput.text()
-
-        # for var in self.errData:
-        #     sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
-        #     self.errData[var] = sampErrInput.text()
             
         for var in self.variables:
 
@@ -318,6 +307,13 @@ class ErrorWindow(QWidget):
     def closeWindow(self):
 
         self.close()
+
+class InformationBox(QMessageBox):
+    
+    def __init__(self, message, buttons):
+        ''' Consider passing in message type, error or question '''
+        super().__init__()
+        
 
     
 

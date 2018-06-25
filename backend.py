@@ -6,15 +6,15 @@ SIGMA = 'sigma_'
 
 EXPL = r'\intertext{The Corresponding error expression is,}'
 
-def intermediateExpression(expression, variables, eqData, errorData):
+def intermediateExpression(expression, allSymbols, eqData, errorData):
 
-    for variable in variables:
+    for variable in allSymbols:
 
         sigmaRegEx = '{0}{1}'.format(SIGMA, variable)
 
         expression = sub(sigmaRegEx, str(errorData[sigmaRegEx]), str(expression))
 
-        expression = sub('{0}(?=[^a-zA-Z])'.format(str(variable)), str(eqData[variable]), str(expression))
+        expression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(eqData[str(variable)]), str(expression))  
 
     return sympify(expression, evaluate=False)
 
@@ -37,14 +37,13 @@ def tableDesign():
     """ Present sample calculation data on table """
 
 
-def sampleCalculations(expression, errorExpression, samplData, variables):
+def sampleCalculations(expression, errorExpression, samplData, allSymbols):
     """ 
     Show sample calculation, with symbols replaced by numbers
     Variables should be a tuple of sympy symbols
     """
     eqData = samplData[0]
     errorData = samplData[1]
-
     expression = sympify(expression)
     expressionAns = latex(expression.evalf(subs=eqData))
 
@@ -52,16 +51,17 @@ def sampleCalculations(expression, errorExpression, samplData, variables):
 
     try:
 
-        errInterExpression = latex(intermediateExpression(expression, variables, eqData, errorData))
-        eqInterExpression = latex(intermediateExpression(errorExpression, variables, eqData, errorData))
+        errInterExpression = '\sigma_E &= {0}'.format(latex(intermediateExpression(errorExpression, allSymbols, eqData, errorData)))
+        eqInterExpression = 'E&= {0}'.format(latex(intermediateExpression(expression, allSymbols, eqData, errorData)))
     
     except Exception as e:
 
-        errInterExpression = "\\"
-        eqInterExpression  = "\\"
+        errInterExpression = ""
+        eqInterExpression  = ""
 
-    string_block = r'E&= {0} \\ E&={1} \\ E&= {2} \\ {3} \sigma_E &= {4} \\ \sigma_E &= {5} \\ \sigma_E &= {6}' \
-    .format(latex(expression), errInterExpression, expressionAns, EXPL, latex(errorExpression), eqInterExpression,errorExprAns)
+
+    string_block = r'E&= {0} \\ {1} \\ E&= {2} \\ {3} \sigma_E &= {4} \\  {5} \\ \sigma_E &= {6}' \
+    .format(latex(expression), eqInterExpression, expressionAns, EXPL, latex(errorExpression), errInterExpression, errorExprAns)
 
     return string_block
 

@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
-from sympy import symbols, sympify
+from sympy import symbols, sympify, pretty
 from backend import sampleCalculations, partialDerivative, isNumber, SIGMA
 
 import time, ctypes, re, unicodedata
@@ -18,9 +18,11 @@ class mainWindow(QMainWindow):
         super().__init__()
 
         '''Fields'''
-        self.equation_variables = {'equation':None,'variables':None}
+        self.equation_variables = {'equation':None, 'variables':None}
         self.equation = None
         self.variables = None
+        self.actualEqBlock = u"Equation:\n\tcos(x) +sin(y)\u00B2  +e\u00B3\u02b8 + ln(z) + log(y)"      #Equation formatting example
+        self.typedEquation = "Represented As:\n\tcos(x) + sin(y)^2 + exp(3*y) + log(z) + log(y, 10)"    #Equation formatting example
 
         ''' Window Properties '''
         self.icon = QtGui.QIcon('atom.png')
@@ -42,26 +44,31 @@ class mainWindow(QMainWindow):
         '''Add layout to frames'''
         self.eqFormatLayout = QFormLayout(self.formatGroupBox)
         self.EqVarLayout = QFormLayout(self.EqVarGroupBox)
-        self.latextLayout = QFormLayout(self.latexGroupBox)
+        self.latexLayout = QFormLayout(self.latexGroupBox)
 
         self.eqFormatLayout.setAlignment(QtCore.Qt.AlignHCenter)
         self.EqVarLayout.setAlignment(QtCore.Qt.AlignHCenter)
-        self.latextLayout.setAlignment(QtCore.Qt.AlignHCenter)
+        self.latexLayout.setAlignment(QtCore.Qt.AlignHCenter)
 
 
         ''' Labels '''
+        self.equationFormatLabel = QtWidgets.QLabel(self.actualEqBlock, self.centralwidget)
+        self.typedEquationLabel = QtWidgets.QLabel(self.typedEquation, self.centralwidget)
         self.equationLabel = QtWidgets.QLabel("Equation", self.centralwidget)
         self.variablesLabel = QtWidgets.QLabel("variables", self.centralwidget)
         self.latexLabel = QtWidgets.QLabel("Latex Output", self.centralwidget)
 
         '''Equation and variables text editors'''
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.equationLineEdit.setText('cos(x) + sin(y)^2 + asin(z)^3 *exp(3*z) + log(x)*log(y, 10)')
+        self.equationLineEdit.setText('cos(x) + sin(y)^2 + asin(z)^3 *exp(3*z)*sin(a)')
         self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.variablesLineEdit.setText('x, y, z')
 
 
-        '''Latex Output'''
+        '''Text Edit'''
+        # self.equationFormat = QtWidgets.QTextEdit(self.centralwidget)
+        # self.equationFormat.setReadOnly(True)
+        #self.equationFormat.setText(pretty(sympify('cos(x) + sin(y)^2'),use_unicode=True))
         self.latexOutput = QtWidgets.QTextEdit(self.centralwidget)
 
 
@@ -69,10 +76,10 @@ class mainWindow(QMainWindow):
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
         self.submitButton.clicked.connect(self.handleSubmit)
 
-
+        #self.addFields(0, self.eqFormatLayout, self.equationFormat, self.equationFormatLabel)
         self.addFields(0,self.EqVarLayout, self.equationLineEdit, self.equationLabel)
         self.addFields(1, self.EqVarLayout, self.variablesLineEdit, self.variablesLabel)
-        self.addFields(0,self.latextLayout, self.latexOutput, self.latexLabel)
+        self.addFields(0,self.latexLayout, self.latexOutput, self.latexLabel)
 
 
         self.EqVarLayout.setWidget(2, QFormLayout.FieldRole, self.submitButton)
@@ -81,6 +88,9 @@ class mainWindow(QMainWindow):
         self.verticalLayout.addWidget(self.formatGroupBox)
         self.verticalLayout.addWidget(self.EqVarGroupBox)
         self.verticalLayout.addWidget(self.latexGroupBox)
+
+        self.eqFormatLayout.setWidget(0, QFormLayout.LabelRole, self.equationFormatLabel)
+        self.eqFormatLayout.setWidget(1, QFormLayout.LabelRole, self.typedEquationLabel)
         self.setCentralWidget(self.centralwidget)
 
     
@@ -110,8 +120,9 @@ class mainWindow(QMainWindow):
         self.equation_variables['equation'] = self.equationLineEdit.text()
         self.equation_variables['variables'] = self.variablesLineEdit.text()
 
-
         self.variables = re.findall(r"[a-zA-Z']+", self.equation_variables['variables']) #strip('\s').split(',')
+
+        self.allSymbols = list(sympify(self.equation_variables['equation']).free_symbols)
 
         self.equation = self.equation_variables['equation'].strip('\s')
 
@@ -124,7 +135,7 @@ class mainWindow(QMainWindow):
 
             self._running = False
 
-            self.secondWindow = secondaryWindow(self.equation, self.variables, self.icon, self.latexOutput)
+            self.secondWindow = secondaryWindow(self.equation, self.variables, self.allSymbols, self.icon, self.latexOutput)
             self.secondWindow.show()
 
     def validateInput(self):
@@ -156,17 +167,18 @@ class mainWindow(QMainWindow):
 
 class secondaryWindow(QWidget):
     
-    def __init__(self, equation, variables, icon, latexOutput):
+    def __init__(self, equation, variables, allSymbols, icon, latexOutput):
         
         super().__init__()
 
         '''Data Fields'''
 
         self.variables = variables
+        self.allSymbols = allSymbols
         self.equation = equation
 
-        self.symData = {str(key):None for key in symbols(self.variables)}
-        self.errData = {'{0}{1}'.format(SIGMA, key):None for key in symbols(self.variables)}
+        self.symData = {str(key):None for key in self.allSymbols}
+        self.errData = {'{0}{1}'.format(SIGMA, key):None for key in self.allSymbols}
 
         self.icon = icon
 
@@ -196,8 +208,8 @@ class secondaryWindow(QWidget):
         self.verticalLayout.addWidget(self.bottomGroupBox)
         self.verticalLayout.addWidget(self.sampleSubmitButton)
 
-        self.addInputs(self.variables, self.topGroupBoxformLT, self.topGroupBox)
-        self.addInputs(self.variables, self.bottomGroupBoxformLT, self.bottomGroupBox)
+        self.addInputs(self.variables, self.allSymbols, self.topGroupBoxformLT, self.topGroupBox)
+        self.addInputs(self.variables, self.allSymbols, self.bottomGroupBoxformLT, self.bottomGroupBox)
 
 
     def designGroupBox(self, boxTitle):
@@ -206,11 +218,11 @@ class secondaryWindow(QWidget):
 
         return box
 
-    def addInputs(self, variables, layout, GroupBox):
+    def addInputs(self, variables, allSymbols, layout, GroupBox):
 
         self.row = 0
 
-        for variable in self.variables:
+        for variable in self.allSymbols:
             
             self.input = QLineEdit(GroupBox)
             
@@ -238,19 +250,19 @@ class secondaryWindow(QWidget):
     def handleSubmit(self):
         """ method to retrieve sample calculation data and pass to main window."""
             
-        for var in self.variables:
+        for var in self.allSymbols:
 
             sampEquationInput= self.topGroupBox.findChild(QLineEdit, str(var))
-            self.symData[var] = sampEquationInput.text()
+            self.symData[str(var)] = sampEquationInput.text()
 
             sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
             self.errData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text()
 
         self.validateInput()
 
-        errorExpression = partialDerivative(self.symData, sympify(self.equation))
+        errorExpression = partialDerivative(self.variables, sympify(self.equation))
 
-        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData], self.variables)
+        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData], self.allSymbols)
 
         self.latexOut.setText(latexOutput)
 

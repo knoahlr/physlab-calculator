@@ -27,7 +27,7 @@ python gui.py
 * **Equation** : Expression on which you wish to error propagate.
 * **Variables**: Specify differentiable variables, constants should not be included.
 
-Hitting the submit button launches the sample calculation window presented in Figure 2. Sample calculation variables includes both constants and variables. As seen by the example used. The **symbol a** was not specified as a varibles but still showed up in the sample calculation window.
+Hitting the submit button launches the sample calculation window presented in Figure 2. Sample calculation variables includes both constants and variables. As seen by the example used. The ***symbol a*** was not specified as a varible but still shows up in the sample calculation window.
 
 ![Figure 2](articles/varWindow.PNG)
 

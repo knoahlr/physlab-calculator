@@ -25,7 +25,7 @@ class mainWindow(QMainWindow):
         self.typedEquation = "Represented As:\n\tcos(x) + sin(y)^2 + exp(3*y) + log(z) + log(y, 10)"    #Equation formatting example
 
         ''' Window Properties '''
-        self.icon = QtGui.QIcon('atom.png')
+        self.icon = QtGui.QIcon(r'articles\atom.png')
         self.setMinimumSize(self.minimumSizeHint())
         self.setWindowTitle("Error Propagation")
         self.setWindowIcon(self.icon)

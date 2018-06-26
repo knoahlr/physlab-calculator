@@ -74,6 +74,7 @@ def isNumber(s):
         return False
 
 if __name__ == '__main__':
+    
     expression = sympify('x^2 +(a^3)*b')
     x, a, b = symbols('x a b')
 

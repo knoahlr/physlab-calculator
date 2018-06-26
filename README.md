@@ -24,7 +24,7 @@ python gui.py
 
 ![Figure 1](articles/mainWindow.PNG)
 
-* **Equation** : Expression on which you wish to error propagate.\
+* **Equation** : Expression on which you wish to error propagate.
 * **Variables**: Specify differentiable variables, constants should not be included.
 
 Hitting the submit button launches the sample calculation window presented in Figure 2. Sample calculation variables includes both constants and variables. As seen by the example used. The **symbol a** was not specified as a varibles but still showed up in the sample calculation window.
@@ -34,5 +34,5 @@ Hitting the submit button launches the sample calculation window presented in Fi
 Hitting submit on the sample calculation window populates the latex Output box in the mainwindow as seen in Figure 3.
  
  ![Figure 2](articles/mainWindowFinal.PNG)
-
+ 
 View the output on any latex interpreter.

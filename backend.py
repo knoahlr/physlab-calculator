@@ -12,9 +12,9 @@ def intermediateExpression(expression, allSymbols, eqData, errorData):
 
         sigmaRegEx = '{0}{1}'.format(SIGMA, variable)
 
-        expression = sub(sigmaRegEx, str(errorData[sigmaRegEx]), str(expression))
+        expression = sub(sigmaRegEx, str(errorData[sigmaRegEx][0]), str(expression))
 
-        expression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(eqData[str(variable)]), str(expression))  
+        expression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(eqData[str(variable)][0]), str(expression))  
 
     return sympify(expression, evaluate=False)
 
@@ -45,9 +45,10 @@ def sampleCalculations(expression, errorExpression, samplData, allSymbols):
     eqData = samplData[0]
     errorData = samplData[1]
     expression = sympify(expression)
-    expressionAns = latex(expression.evalf(subs=eqData))
 
-    errorExprAns = latex(errorExpression.evalf(subs=dict(eqData, **errorData)))
+    #Subs expression makes a temp dictionary to use only the first value for the sample calculation 
+    expressionAns = latex(expression.evalf(subs={key:data[0] for key, data in eqData.items()}))
+    errorExprAns = latex(errorExpression.evalf(subs=dict({key:data[0] for key, data in eqData.items()}, **{key:data[0] for key, data in errorData.items()})))
 
     try:
 

@@ -1,11 +1,12 @@
 import sys
+import time, ctypes, re, unicodedata
+
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QWidget, QFormLayout, QMainWindow, QGroupBox, QMessageBox, QLabel, QTextEdit, QLineEdit, \
+QPushButton, QCommonStyle, QApplication
 
 from sympy import symbols, sympify, pretty
 from backend import sampleCalculations, partialDerivative, isNumber, SIGMA
-
-import time, ctypes, re, unicodedata
 
 
 class mainWindow(QMainWindow):
@@ -41,6 +42,7 @@ class mainWindow(QMainWindow):
         self.EqVarGroupBox = self.designGroupBox('Equation and Variables Input')
         self.latexGroupBox = self.designGroupBox('Latex Output')
         
+
         '''Add layout to frames'''
         self.eqFormatLayout = QFormLayout(self.formatGroupBox)
         self.EqVarLayout = QFormLayout(self.EqVarGroupBox)
@@ -129,9 +131,6 @@ class mainWindow(QMainWindow):
         if self.validateInput():
 
             ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
-            #Forming symbols
-
-
 
             self._running = False
 
@@ -229,11 +228,11 @@ class secondaryWindow(QWidget):
             if re.search('errorVariables', GroupBox.objectName()): 
 
                 self.inputLabel = QLabel('{0}{1}'.format(unicodedata.lookup("GREEK SMALL LETTER SIGMA"), str(variable)), GroupBox)
-                self.input.setText('0.023')
+                self.input.setText('0.023, 0.01')
             
             else: 
                 self.inputLabel = QLabel(str(variable), GroupBox)
-                self.input.setText('23')
+                self.input.setText('27, 6.6')
 
 
             self.input.setObjectName(str(variable))
@@ -253,10 +252,10 @@ class secondaryWindow(QWidget):
         for var in self.allSymbols:
 
             sampEquationInput= self.topGroupBox.findChild(QLineEdit, str(var))
-            self.symData[str(var)] = sampEquationInput.text()
+            self.symData[str(var)] = sampEquationInput.text().split(',')
 
             sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
-            self.errData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text()
+            self.errData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text().split(',')
 
         self.validateInput()
 
@@ -271,21 +270,20 @@ class secondaryWindow(QWidget):
         ''' Integer validation '''
         invalidInputs = []
 
-        for var in self.symData:
+        for var, datas in self.symData.items():
             # print(self.symData[var].isnumeric())
-        
-            if not isNumber(self.symData[var]):
-                self.topGroupBox.findChild(QLineEdit, str(var)).clear()
-                invalidInputs.append(var)
+            for data in datas:
+                if not isNumber(data):
+                    self.topGroupBox.findChild(QLineEdit, str(var)).clear()
+                    invalidInputs.append(var)
 
-        for var in self.errData:
-            if not isNumber(self.errData[var]):
-                self.bottomGroupBox.findChild(QLineEdit, str(var)).clear()
-                invalidInputs.append(var)
+        for var, datas in self.errData.items():
+            for data in datas:
+                if not isNumber(data):
+                    self.bottomGroupBox.findChild(QLineEdit, str(var)).clear()
+                    invalidInputs.append(var)
 
         if not invalidInputs: return 
-            # self.handleSampleSubmit()
-            #self.close()
         else:
             message = "{0} must be numeric values".format(str(invalidInputs).strip('[]'))
             self.error_window = ErrorWindow(message, self.icon)
@@ -310,7 +308,7 @@ class ErrorWindow(QWidget):
 
         self.label = QLabel(errorInfo)
         self.okButton = QPushButton('Ok')
-        
+              
         self.verticalLayout.addWidget(self.label)
         self.verticalLayout.addWidget(self.okButton)
 

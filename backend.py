@@ -1,10 +1,15 @@
 from sympy import sympify, latex, diff, symbols, sqrt
 from re import sub
+from pandas import DataFrame
 import sys
+
 
 SIGMA = 'sigma_'
 
 EXPL = r'\intertext{The Corresponding error expression is,}'
+
+def floatFormat(floatValue):
+    ''' Returns a string in unicode format '''
 
 def intermediateExpression(expression, allSymbols, eqData, errorData):
 
@@ -32,9 +37,23 @@ def partialDerivative(variables, expression):
 
     return sqrt(diffExpression)
 
-def tableDesign():
+def tableDesign(expression , errorExpression, samplData):
 
     """ Present sample calculation data on table """
+
+    eqData = samplData[0]
+    errorData = samplData[1]
+    expressionAns = []
+    errorExprAns = []
+
+    for i in range(5):
+        expressionAns.append(expression.evalf(subs={key:data[i] for key, data in eqData.items()}))
+        errorExprAns.append(errorExpression.evalf(subs=dict({key:data[i] for key, data in eqData.items()}, **{key:data[i] for key, data in errorData.items()})))
+
+    df = DataFrame({'E':expressionAns, SIGMA:errorExprAns})
+    print(df)
+    
+    return df.to_latex(decimal=str)     
 
 
 def sampleCalculations(expression, errorExpression, samplData, allSymbols):
@@ -45,6 +64,7 @@ def sampleCalculations(expression, errorExpression, samplData, allSymbols):
     eqData = samplData[0]
     errorData = samplData[1]
     expression = sympify(expression)
+    tableStringBlock = None
 
     #Subs expression makes a temp dictionary to use only the first value for the sample calculation 
     expressionAns = latex(expression.evalf(subs={key:data[0] for key, data in eqData.items()}))
@@ -60,9 +80,18 @@ def sampleCalculations(expression, errorExpression, samplData, allSymbols):
         errInterExpression = ""
         eqInterExpression  = ""
 
+    try:
+        
+        tableStringBlock = tableDesign(expression, errorExpression, samplData)
+    
+    except Exception as e:
+         
+        print(e) 
+        tableStringBlock = ""
 
-    string_block = r'E&= {0} \\ {1} \\ E&= {2} \\ {3} \sigma_E &= {4} \\  {5} \\ \sigma_E &= {6}' \
-    .format(latex(expression), eqInterExpression, expressionAns, EXPL, latex(errorExpression), errInterExpression, errorExprAns)
+    string_block = r'E&= {0} \\ {1} \\ E&= {2} \\ {3} \sigma_E &= {4} \\  {5} \\ \sigma_E &= {6} \\ \\ {7} ' \
+    .format(latex(expression), eqInterExpression, expressionAns, EXPL, latex(errorExpression), errInterExpression, errorExprAns, tableStringBlock)
+
 
     return string_block
 

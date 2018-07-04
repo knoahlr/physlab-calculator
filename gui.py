@@ -228,11 +228,11 @@ class secondaryWindow(QWidget):
             if re.search('errorVariables', GroupBox.objectName()): 
 
                 self.inputLabel = QLabel('{0}{1}'.format(unicodedata.lookup("GREEK SMALL LETTER SIGMA"), str(variable)), GroupBox)
-                self.input.setText('0.023, 0.01')
+                self.input.setText('0.023, 0.01, 0.02, 0.005, 0.7')
             
             else: 
                 self.inputLabel = QLabel(str(variable), GroupBox)
-                self.input.setText('27, 6.6')
+                self.input.setText('27, 6.6, 7.8, 9.2, 10.4')
 
 
             self.input.setObjectName(str(variable))

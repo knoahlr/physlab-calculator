@@ -27,7 +27,7 @@ class mainWindow(QMainWindow):
 
         ''' Window Properties '''
         self.icon = QtGui.QIcon(r'articles\atom.png')
-        self.setMinimumSize(self.minimumSizeHint())
+        self.setMinimumSize(self.sizeHint())
         self.setWindowTitle("Error Propagation")
         self.setWindowIcon(self.icon)
 
@@ -185,7 +185,8 @@ class secondaryWindow(QWidget):
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
-        self.resize(self.sizeHint())
+        #self.resize(self.sizeHint())
+        #self.resize(200, 180)
         if self.icon: self.setWindowIcon(self.icon)
         
         self.verticalLayout = QtWidgets.QVBoxLayout()

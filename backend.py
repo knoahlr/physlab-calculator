@@ -3,15 +3,19 @@ from re import sub
 from pandas import DataFrame
 import sys, decimal
 
-
 SIGMA = 'sigma_'
-
+UNICODE_IDENTIFIER_PLUS_MINUS = "PLUS-MINUS SIGN"
 EXPL = r'\intertext{The Corresponding error expression is,}'
 
 def floatFormatting(floatValue):
     ''' Returns a string in unicode format '''
-    print(str(floatValue))
-    return '%.2E' % decimal.Decimal(str(floatValue))
+    # print(str(floatValue))
+    # return '%.2E' % decimal.Decimal(str(floatValue))
+
+    #Complex Numbers formatting. Rid oif *I and replace with i.
+
+    return sub('[*I]+','j', str(floatValue))
+
 
 
 def intermediateExpression(expression, allSymbols, eqData, errorData):
@@ -51,9 +55,9 @@ def tableDesign(expression , errorExpression, samplData):
 
     ex = [expression.evalf(subs={key:data[i] for key, data in eqData.items()}) for i in range(5)]
 
-    expressionAns = [expression.evalf(subs={key:data[i] for key, data in eqData.items()}) for i in range(5)]
-    errorExprAns = [errorExpression.evalf(subs=dict({key:data[i] for key, data in eqData.items()}, \
-    **{key:data[i] for key, data in errorData.items()}))for i in range(5)]
+    expressionAns = [floatFormatting(expression.evalf(subs={key:data[i] for key, data in eqData.items()})) for i in range(5)]
+    errorExprAns = [floatFormatting(errorExpression.evalf(subs=dict({key:data[i] for key, data in eqData.items()}, \
+    **{key:data[i] for key, data in errorData.items()}))) for i in range(5)]
 
     df = DataFrame({'E':expressionAns, SIGMA:errorExprAns})
  

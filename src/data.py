@@ -33,8 +33,8 @@ class userInput():
 
         ''' Inter Expressions '''
 
-        self.equationInterExpression = ""
-        self.errorInterExpression = ""
+        self.equationInterExpression = self.equationExpression # ""
+        self.errorInterExpression = self.errorExpression  #""
 
         ''' Data '''
         self.equationData = []
@@ -42,10 +42,13 @@ class userInput():
 
         ''' Misc '''
         self.latexOutput = None
+        self.maxDataLength = 0
 
 
     def floatFormatting(self, floatValue):
-        ''' Returns a string in unicode format '''
+        ''' 
+        Returns a string in unicode format
+        '''
         # print(str(floatValue))
         # return '%.2E' % decimal.Decimal(str(floatValue))
 
@@ -55,21 +58,21 @@ class userInput():
 
 
     def intermediateExpression(self):
+        '''
+        Subs values into equations for intermediate expressions.
+        i.e. cos(72) + sin(5)^2 + exp(3*24) + log(23)
+        '''
 
         if self.equationExpression:
 
-            self.equationInterExpression = self.equationExpression
-
             for variable in self.allSymbols:
 
-                self.equationInterExpression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(self.equationData[str(variable)][0]), str(self.equationExpression))  
+                self.equationInterExpression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(self.equationData[str(variable)][0]), str(self.equationInterExpression))  
 
             self.equationInterExpression = sympify(self.equationInterExpression, evaluate=False)
             self.equationInterExpression = 'E&= {0}'.format(latex(self.equationInterExpression))
 
         if self.errorExpression:
-
-            self.errorInterExpression = self.errorExpression
 
             for variable in self.allSymbols:
 
@@ -99,7 +102,7 @@ class userInput():
     def tableDesign(self):
 
         """ Present sample calculation data on table """
-
+        print(self.equationData.items())
         expressionAns = [self.floatFormatting(self.equationExpression.evalf(subs={key:data[i] for key, data in self.equationData.items()})) for i in range(5)]
         errorExprAns = [self.floatFormatting(self.errorExpression.evalf(subs=dict({key:data[i] for key, data in self.equationData.items()}, \
         **{key:data[i] for key, data in self.errorData.items()}))) for i in range(5)]
@@ -126,6 +129,7 @@ class userInput():
 
         except Exception as e:
 
+            #print(e) uncomment for debugging intermediateExpression()
             self.equationInterExpression = ""
             self.errorInterExpression = ""
 
@@ -144,9 +148,39 @@ class userInput():
         self.latexOutput.setText(string_block)
 
     def isNumber(self, s):
-        ''' Implemented in validating sample calculation inputs'''
+        ''' 
+        Implemented in validating sample calculation inputs
+        '''
         try:
             float(s)
             return True
         except ValueError:
             return False
+
+    def dataNormality(self):
+
+        ''' 
+        In the secondary Window, if one variable has more data inputs than the other, 
+        then zeros will be added to all variables and their equivalent errors so all error lists are the same size
+        '''
+
+        for data in self.equationData.values():
+            if len(data) > self.maxDataLength: self.maxDataLength = len(data)
+        
+        for key, data in self.equationData.items():
+
+            while(len(self.equationData[key]) < self.maxDataLength):
+
+                self.equationData[key].append(0)
+        
+        for key, data in self.errorData.items():
+
+            while(len(self.errorData[key]) < self.maxDataLength):
+
+                self.errorData[key].append(0)
+            '''Maybe add lines to remove excess data input in errorData '''
+
+
+
+    
+

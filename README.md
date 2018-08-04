@@ -17,10 +17,10 @@ You can install them by running.
 After ensuring that you`ve installed all the prerequisites mentioned above. Launch the application with,
 
 ```bash
-python gui.py
+python main.py
 ```
 
- The window presented in figure 1 will pop up. Note that preloaded equation is for test purposes you can edit the source if you wish to get rid of it, **gui.py, line 63.**
+ The window presented in figure 1 will pop up. Note that preloaded equation is for test purposes you can edit the source if you wish to get rid of it, **mainWindow.py, line 71.**
 
 ![Figure 1](articles/mainWindow.PNG)
 

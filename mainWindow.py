@@ -1,13 +1,16 @@
-import sys, time, ctypes, re
-
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtWidgets import QWidget, QFormLayout, QMainWindow, QGroupBox, \
-QMessageBox, QLabel, QTextEdit, QLineEdit, QPushButton, QCommonStyle, QApplication
+QMessageBox, QLabel, QTextEdit, QLineEdit, QPushButton, QApplication
 
 from sympy import symbols, sympify, pretty
 
 from secondaryWindow import secondaryWindow
 from errorWindow import ErrorWindow
+from data import userInput
+
+import re
+
+ICON = r'articles\atom.png'
 
 
 class mainWindow(QMainWindow):
@@ -25,10 +28,12 @@ class mainWindow(QMainWindow):
         self.variables = None
         self.actualEqBlock = u"Equation:\n\tcos(x) +sin(y)\u00B2  +e\u00B3\u02b8 + ln(z) + log(y)"      #Equation formatting example
         self.typedEquation = "Represented As:\n\tcos(x) + sin(y)^2 + exp(3*y) + log(z) + log(y, 10)"    #Equation formatting example
+        self.dataInput = None
 
         ''' Window Properties '''
         self.icon = QtGui.QIcon(r'articles\atom.png')
         self.setMinimumSize(self.sizeHint())
+        self.resize(800,500)
         self.setWindowTitle("Error Propagation")
         self.setWindowIcon(self.icon)
 
@@ -120,22 +125,16 @@ class mainWindow(QMainWindow):
 
     def handleSubmit(self):
 
-        self.equation_variables['equation'] = self.equationLineEdit.text()
-        self.equation_variables['variables'] = self.variablesLineEdit.text()
-
-        self.variables = re.findall(r"[a-zA-Z']+", self.equation_variables['variables']) #strip('\s').split(',')
-
-        self.allSymbols = list(sympify(self.equation_variables['equation']).free_symbols)
-
-        self.equation = self.equation_variables['equation'].strip('\s')
-
+        self.dataInput = userInput(self.equationLineEdit.text().strip('\s'), list(sympify(self.equationLineEdit.text()).free_symbols), re.findall(r"[a-zA-Z']+", self.variablesLineEdit.text()))
+        self.dataInput.latexOutput = self.latexOutput
+        
         if self.validateInput():
 
             ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
 
             self._running = False
 
-            self.secondWindow = secondaryWindow(self.equation, self.variables, self.allSymbols, self.icon, self.latexOutput)
+            self.secondWindow = secondaryWindow(self.dataInput)
             self.secondWindow.show()
 
     def validateInput(self):
@@ -144,9 +143,9 @@ class mainWindow(QMainWindow):
 
         try:
 
-            sympify(self.equation)
+            sympify(self.dataInput.equation)
 
-            if not self.variables:
+            if not self.dataInput.variables:
                 self.errorWindow = ErrorWindow('There has to be atleast one differentiable variable bro', self.icon)
                 self.variablesLineEdit.clear()
                 self.errorWindow.show()
@@ -166,18 +165,3 @@ class mainWindow(QMainWindow):
         return True
 
    
-def run():
-    app = QApplication(sys.argv)
-    app.setStyle(QCommonStyle())
-    window = mainWindow()
-    # myWindow = secondaryWindow()
-    # myWindow.show()
-    window.show()
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    
-    myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
-    ''' https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7/1552105#1552105 '''
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    run()

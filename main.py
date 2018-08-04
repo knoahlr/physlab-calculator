@@ -3,6 +3,7 @@ from mainWindow import mainWindow
 from secondaryWindow import secondaryWindow
 
 from PyQt5.QtWidgets import QCommonStyle, QApplication
+ICON = r'articles\atom.png'
 
 if __name__ == '__main__':
     

@@ -10,7 +10,7 @@ from data import userInput
 
 import re
 
-ICON = r'articles\atom.png'
+ICON = r'..\articles\atom.png'
 
 
 class mainWindow(QMainWindow):
@@ -31,7 +31,7 @@ class mainWindow(QMainWindow):
         self.dataInput = None
 
         ''' Window Properties '''
-        self.icon = QtGui.QIcon(r'articles\atom.png')
+        self.icon = QtGui.QIcon(r'..\articles\atom.png')
         self.setMinimumSize(self.sizeHint())
         self.resize(800,500)
         self.setWindowTitle("Error Propagation")
@@ -74,11 +74,7 @@ class mainWindow(QMainWindow):
 
 
         '''Text Edit'''
-        # self.equationFormat = QtWidgets.QTextEdit(self.centralwidget)
-        # self.equationFormat.setReadOnly(True)
-        #self.equationFormat.setText(pretty(sympify('cos(x) + sin(y)^2'),use_unicode=True))
         self.latexOutput = QtWidgets.QTextEdit(self.centralwidget)
-
 
         '''submit button'''
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
@@ -127,7 +123,7 @@ class mainWindow(QMainWindow):
 
         self.dataInput = userInput(self.equationLineEdit.text().strip('\s'), list(sympify(self.equationLineEdit.text()).free_symbols), re.findall(r"[a-zA-Z']+", self.variablesLineEdit.text()))
         self.dataInput.latexOutput = self.latexOutput
-        
+
         if self.validateInput():
 
             ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''

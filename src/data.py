@@ -64,6 +64,8 @@ class userInput():
 
                 self.equationInterExpression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(self.equationData[str(variable)][0]), str(self.equationExpression))  
 
+            self.equationInterExpression = sympify(self.equationInterExpression, evaluate=False)
+            self.equationInterExpression = 'E&= {0}'.format(latex(self.equationInterExpression))
 
         if self.errorExpression:
 
@@ -77,8 +79,9 @@ class userInput():
 
                 self.errorInterExpression = sub('(?<=[^a-zA-Z]){0}(?=[^a-zA-Z])'.format(str(variable)), str(self.equationData[str(variable)][0]), str(self.errorInterExpression))
 
+            self.errorInterExpression = sympify(self.errorInterExpression, evaluate=False)
+            self.errorInterExpression = '\sigma_E &= {0}'.format(latex(self.errorInterExpression))
 
-        return sympify(self.equationInterExpression, evaluate=False), sympify(self.errorInterExpression, evaluate=False)
 
     def partialDerivative(self):
         """ 
@@ -118,28 +121,24 @@ class userInput():
         errorExprAns = latex(self.errorExpression.evalf(subs=dict({key:data[0] for key, data in self.equationData.items()}, **{key:data[0] for key, data in self.errorData.items()})))
 
         try:
-            intermediateExpressions = self.intermediateExpression()
-            errInterExpression = '\sigma_E &= {0}'.format(latex(intermediateExpressions[1]))
-            eqInterExpression = 'E&= {0}'.format(latex(intermediateExpressions[0]))
-        
+
+            self.intermediateExpression()
+
         except Exception as e:
 
-            print(e)
-
-            errInterExpression = ""
-            eqInterExpression  = ""
+            self.equationInterExpression = ""
+            self.errorInterExpression = ""
 
         try:
             
             tableStringBlock = self.tableDesign()
         
         except Exception as e:
-            
-            print(e) 
+
             tableStringBlock = ""
 
         string_block = 'E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \n {7} ' \
-        .format(latex(self.equationExpression), eqInterExpression, expressionAns, EXPL, latex(self.errorExpression), errInterExpression, errorExprAns, tableStringBlock)
+        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, tableStringBlock)
 
 
         self.latexOutput.setText(string_block)
@@ -151,5 +150,3 @@ class userInput():
             return True
         except ValueError:
             return False
-
-

@@ -2,13 +2,13 @@
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QFormLayout, QMainWindow, QGroupBox, QMessageBox,\
 QLabel, QTextEdit, QLineEdit, QPushButton, QVBoxLayout
-from backend import sampleCalculations, partialDerivative, isNumber, SIGMA
-import unicodedata, re
 
+import unicodedata, re
 from sympy import sympify
 from errorWindow import ErrorWindow
+from data import SIGMA
 
-ICON = r'articles\atom.png'
+ICON = r'..\articles\atom.png'
 
 class secondaryWindow(QWidget):
     
@@ -115,13 +115,13 @@ class secondaryWindow(QWidget):
         for var, datas in self.dataInput.equationData.items():
             # print(self.symData[var].isnumeric())
             for data in datas:
-                if not isNumber(data):
+                if not self.isNumber(data):
                     self.topGroupBox.findChild(QLineEdit, str(var)).clear()
                     invalidInputs.append(var)
 
         for var, datas in self.dataInput.errorData.items():
             for data in datas:
-                if not isNumber(data):
+                if not self.isNumber(data):
                     self.bottomGroupBox.findChild(QLineEdit, str(var)).clear()
                     invalidInputs.append(var)
 
@@ -130,3 +130,11 @@ class secondaryWindow(QWidget):
             message = "{0} must be numeric values".format(str(invalidInputs).strip('[]'))
             self.error_window = ErrorWindow(message, self.icon)
             self.error_window.show()
+            
+    def isNumber(self, s):
+        ''' Implemented in validating sample calculation inputs'''
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False

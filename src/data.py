@@ -159,11 +159,14 @@ class userInput():
 
     def dataNormality(self):
 
+<<<<<<< HEAD
         ''' 
         In the secondary Window, if one variable has more data inputs than the other, 
         then zeros will be added to all variables and their equivalent errors so all error lists are the same size
         '''
 
+=======
+>>>>>>> 0653bd29a0ce5ac6488315e2da549be2e0041f17
         for data in self.equationData.values():
             if len(data) > self.maxDataLength: self.maxDataLength = len(data)
         

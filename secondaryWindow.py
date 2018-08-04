@@ -1,4 +1,5 @@
 
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QFormLayout, QMainWindow, QGroupBox, QMessageBox,\
 QLabel, QTextEdit, QLineEdit, QPushButton, QVBoxLayout
 from backend import sampleCalculations, partialDerivative, isNumber, SIGMA
@@ -7,24 +8,25 @@ import unicodedata, re
 from sympy import sympify
 from errorWindow import ErrorWindow
 
+ICON = r'articles\atom.png'
+
 class secondaryWindow(QWidget):
     
-    def __init__(self, equation, variables, allSymbols, icon, latexOutput):
+    def __init__(self, dataInput):
         
         super().__init__()
 
         '''Data Fields'''
 
-        self.variables = variables
-        self.allSymbols = allSymbols
-        self.equation = equation
+        self.dataInput = dataInput
 
-        self.symData = {str(key):None for key in self.allSymbols}
-        self.errData = {'{0}{1}'.format(SIGMA, key):None for key in self.allSymbols}
+        self.dataInput.equationData = {str(key):None for key in self.dataInput.allSymbols}
+        self.dataInput.errorData = {'{0}{1}'.format(SIGMA, key):None for key in self.dataInput.allSymbols}
 
-        self.icon = icon
+        self.icon = QtGui.QIcon(ICON)
+        self.resize(500, 300)
 
-        self.latexOut = latexOutput
+        self.latexOut = self.dataInput.latexOutput
 
         self.setWindowTitle("Sample Calculation")
         self.setObjectName("SampleCalc")
@@ -51,8 +53,8 @@ class secondaryWindow(QWidget):
         self.verticalLayout.addWidget(self.bottomGroupBox)
         self.verticalLayout.addWidget(self.sampleSubmitButton)
 
-        self.addInputs(self.variables, self.allSymbols, self.topGroupBoxformLT, self.topGroupBox)
-        self.addInputs(self.variables, self.allSymbols, self.bottomGroupBoxformLT, self.bottomGroupBox)
+        self.addInputs(self.topGroupBoxformLT, self.topGroupBox)
+        self.addInputs(self.bottomGroupBoxformLT, self.bottomGroupBox)
 
 
     def designGroupBox(self, boxTitle):
@@ -61,11 +63,11 @@ class secondaryWindow(QWidget):
 
         return box
 
-    def addInputs(self, variables, allSymbols, layout, GroupBox):
+    def addInputs(self, layout, GroupBox):
 
         self.row = 0
 
-        for variable in self.allSymbols:
+        for variable in self.dataInput.allSymbols:
             
             self.input = QLineEdit(GroupBox)
             
@@ -93,35 +95,31 @@ class secondaryWindow(QWidget):
     def handleSubmit(self):
         """ method to retrieve sample calculation data and pass to main window."""
             
-        for var in self.allSymbols:
+        for var in self.dataInput.allSymbols:
 
             sampEquationInput= self.topGroupBox.findChild(QLineEdit, str(var))
-            self.symData[str(var)] = sampEquationInput.text().split(',')
+            self.dataInput.equationData[str(var)] = sampEquationInput.text().split(',')
 
             sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
-            self.errData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text().split(',')
+            self.dataInput.errorData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text().split(',')
 
         self.validateInput()
 
-        errorExpression = partialDerivative(self.variables, sympify(self.equation))
-
-        latexOutput = sampleCalculations(self.equation, errorExpression, [self.symData, self.errData], self.allSymbols)
-
-        self.latexOut.setText(latexOutput)
+        self.dataInput.sampleCalculations()
 
     def validateInput(self):
 
         ''' Integer validation '''
         invalidInputs = []
 
-        for var, datas in self.symData.items():
+        for var, datas in self.dataInput.equationData.items():
             # print(self.symData[var].isnumeric())
             for data in datas:
                 if not isNumber(data):
                     self.topGroupBox.findChild(QLineEdit, str(var)).clear()
                     invalidInputs.append(var)
 
-        for var, datas in self.errData.items():
+        for var, datas in self.dataInput.errorData.items():
             for data in datas:
                 if not isNumber(data):
                     self.bottomGroupBox.findChild(QLineEdit, str(var)).clear()

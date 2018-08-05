@@ -75,7 +75,7 @@ class mainWindow(QMainWindow):
 
         '''Text Edit'''
         self.latexOutput = QtWidgets.QTextEdit(self.centralwidget)
-
+        self.latexOutput.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         '''submit button'''
         self.submitButton = QtWidgets.QPushButton("Submit", self.centralwidget)
         self.submitButton.clicked.connect(self.handleSubmit)

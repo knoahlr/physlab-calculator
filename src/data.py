@@ -37,32 +37,26 @@ class userInput():
         self.errorInterExpression = self.errorExpression  #""
 
         ''' Data '''
-        self.equationData = []
-        self.errorData = []
+        self.equationData = {}
+        self.errorData = {}
 
         ''' Misc '''
         self.latexOutput = None
-        self.maxDataLength = 0
+        self.maxDataLength = None
+        self.tableStringBlock = ""
 
 
     def floatFormatting(self, floatValue):
         ''' 
         Returns a string in unicode format
         '''
-        # print(str(floatValue))
-        # return '%.2E' % decimal.Decimal(str(floatValue))
-
-        #Complex Numbers formatting. Rid oif *I and replace with i.
-
         return sub('[*I]+','j', str(floatValue))
-
 
     def intermediateExpression(self):
         '''
         Subs values into equations for intermediate expressions.
         i.e. cos(72) + sin(5)^2 + exp(3*24) + log(23)
         '''
-
         if self.equationExpression:
 
             for variable in self.allSymbols:
@@ -85,7 +79,6 @@ class userInput():
             self.errorInterExpression = sympify(self.errorInterExpression, evaluate=False)
             self.errorInterExpression = '\sigma_E &= {0}'.format(latex(self.errorInterExpression))
 
-
     def partialDerivative(self):
         """ 
         Variables should be a tuple of sympy symbols
@@ -102,7 +95,7 @@ class userInput():
     def tableDesign(self):
 
         """ Present sample calculation data on table """
-        print(self.equationData.items())
+
         expressionAns = [self.floatFormatting(self.equationExpression.evalf(subs={key:data[i] for key, data in self.equationData.items()})) for i in range(5)]
         errorExprAns = [self.floatFormatting(self.errorExpression.evalf(subs=dict({key:data[i] for key, data in self.equationData.items()}, \
         **{key:data[i] for key, data in self.errorData.items()}))) for i in range(5)]
@@ -110,7 +103,6 @@ class userInput():
         df = DataFrame({'E':expressionAns, "{0}E".format(SIGMA):errorExprAns})
     
         return df.to_latex()     
-
 
     def sampleCalculations(self):
         """ 
@@ -123,28 +115,19 @@ class userInput():
         expressionAns = latex(self.equationExpression.evalf(subs={key:data[0] for key, data in self.equationData.items()}))
         errorExprAns = latex(self.errorExpression.evalf(subs=dict({key:data[0] for key, data in self.equationData.items()}, **{key:data[0] for key, data in self.errorData.items()})))
 
-        try:
-
-            self.intermediateExpression()
-
+        try: self.intermediateExpression()
         except Exception as e:
-
-            #print(e) uncomment for debugging intermediateExpression()
+            print(e) #uncomment for debugging intermediateExpression()
             self.equationInterExpression = ""
             self.errorInterExpression = ""
-
-        try:
-            
-            tableStringBlock = self.tableDesign()
+        try: 
+            if self.maxDataLength > 1: self.tableStringBlock = self.tableDesign()
+        except Exception as e: print(e) #uncomment for debugging intermediateExpression()
         
-        except Exception as e:
-
-            tableStringBlock = ""
-
         string_block = 'E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \n {7} ' \
-        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, tableStringBlock)
-
-
+        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, self.tableStringBlock)
+        
+        self.reInitializeData()
         self.latexOutput.setText(string_block)
 
     def isNumber(self, s):
@@ -159,14 +142,13 @@ class userInput():
 
     def dataNormality(self):
 
-<<<<<<< HEAD
         ''' 
         In the secondary Window, if one variable has more data inputs than the other, 
         then zeros will be added to all variables and their equivalent errors so all error lists are the same size
         '''
 
-=======
->>>>>>> 0653bd29a0ce5ac6488315e2da549be2e0041f17
+        self.maxDataLength = 0
+
         for data in self.equationData.values():
             if len(data) > self.maxDataLength: self.maxDataLength = len(data)
         
@@ -183,7 +165,23 @@ class userInput():
                 self.errorData[key].append(0)
             '''Maybe add lines to remove excess data input in errorData '''
 
+            while(len(self.errorData[key]) > self.maxDataLength):
 
+                del self.errorData[key][len(self.errorData[key]) - 1]
+
+    def reInitializeData(self):
+
+        ''' Expressions '''
+        self.equationInterExpression = self.equationExpression
+        self.errorInterExpression = self.errorExpression
+
+        ''' Data '''
+        for key in self.equationData.keys(): self.equationData[key] = []
+        for key in self.errorData.keys(): self.errorData[key] = []
+
+        ''' Misc '''
+        self.maxDataLength = None
+        self.tableStringBlock = ""
 
     
 

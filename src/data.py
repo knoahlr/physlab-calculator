@@ -9,6 +9,7 @@ import sys, decimal
 SIGMA = 'sigma_'
 UNICODE_IDENTIFIER_PLUS_MINUS = "PLUS-MINUS SIGN"
 EXPL = r'\intertext{The Corresponding error expression is,}'
+tableEXPL = r'\intertext{ Value of --- and corresponding error for values presented in table , }'
 
 '''
 Data input class
@@ -33,8 +34,9 @@ class userInput():
 
         ''' Inter Expressions '''
 
-        self.equationInterExpression = self.equationExpression # ""
-        self.errorInterExpression = self.errorExpression  #""
+        self.equationInterExpression = self.equationExpression 
+        self.errorInterExpression = self.errorExpression  
+        self.answerPresentation = ""
 
         ''' Data '''
         self.equationData = {}
@@ -123,9 +125,11 @@ class userInput():
         try: 
             if self.maxDataLength > 1: self.tableStringBlock = self.tableDesign()
         except Exception as e: print(e) #uncomment for debugging intermediateExpression()
+
+        self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns)
         
-        string_block = 'E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \n {7} ' \
-        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, self.tableStringBlock)
+        string_block = 'E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \\\\ {7} \\\\ {8} \n {9}' \
+        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, self.answerPresentation, tableEXPL, self.tableStringBlock)
         
         self.reInitializeData()
         self.latexOutput.setText(string_block)
@@ -174,6 +178,7 @@ class userInput():
         ''' Expressions '''
         self.equationInterExpression = self.equationExpression
         self.errorInterExpression = self.errorExpression
+        self.answerPresentation = ""
 
         ''' Data '''
         for key in self.equationData.keys(): self.equationData[key] = []

@@ -102,9 +102,9 @@ class userInput():
         errorExprAns = [self.floatFormatting(self.errorExpression.evalf(subs=dict({key:data[i] for key, data in self.equationData.items()}, \
         **{key:data[i] for key, data in self.errorData.items()}))) for i in range(5)]
 
-        df = DataFrame({'E':expressionAns, "{0}E".format(SIGMA):errorExprAns})
+        df = DataFrame({'E':expressionAns, "Error on E":errorExprAns})
     
-        return df.to_latex()     
+        return df.to_latex(column_format='cccc', bold_rows=True)     
 
     def sampleCalculations(self):
         """ 

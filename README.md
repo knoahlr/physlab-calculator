@@ -10,6 +10,7 @@ You can install them by running.
  ```bash
  pip install pyqt5
  pip install sympy
+ pip install pandas
  ```
 
 ## **Usage**
@@ -38,3 +39,8 @@ Hitting submit on the sample calculation window populates the latex Output box i
  ![Figure 2](articles/mainWindowFinal.PNG)
  
 View the output on any latex interpreter.
+
+## To be Implemented
+
+* Significant figures for data presentation
+* Context Menus

@@ -21,6 +21,7 @@ Data input class
 class userInput():
 
     def __init__(self, equation, allSymbols, variables):
+        
 
         ''' Inputs '''
         self.equation = equation
@@ -45,14 +46,47 @@ class userInput():
         ''' Misc '''
         self.latexOutput = None
         self.maxDataLength = None
+        self.cases = ()
+
+        ''' Table Data '''
+
+        self.fullTable = ""
         self.tableStringBlock = ""
+        self.tableBegin = "\\begin{table}[]\n\centering"
+
+        self.tableEnd = "\caption{caption}\n\label{tab:my_label}\n\end{table}\n"
+  
+        
+
+    def isNumber(self, s):
+        ''' 
+        Implemented in validating sample calculation inputs
+        '''
+        try:
+            float(s)
+            return (True, None)
+        except Exception as e:
+            return (False, e)
+    # def isComplex(self, s):
 
 
     def floatFormatting(self, floatValue):
         ''' 
         Returns a string in unicode format
         '''
-        return sub('[*I]+','j', str(floatValue))
+        numCheck = self.isNumber(floatValue)
+
+        '''
+        Formatting Complex numbers to four significant figures and scientific notation
+        '''
+        if not numCheck[0]:
+            if type(numCheck[1]).__name__ == 'TypeError':
+                floatValue = sub('[*I]+','j', str(floatValue))
+                floatValue = complex(sub('\s+',"",floatValue))
+                return '{0:.4g}'.format(floatValue)
+                
+        floatValue = '{0:.4g}'.format(float(floatValue))
+        return floatValue
 
     def intermediateExpression(self):
         '''
@@ -104,7 +138,7 @@ class userInput():
 
         df = DataFrame({'E':expressionAns, "Error on E":errorExprAns})
     
-        return df.to_latex(column_format='cccc', bold_rows=True)     
+        return df.to_latex(column_format='cccc')     
 
     def sampleCalculations(self):
         """ 
@@ -124,25 +158,17 @@ class userInput():
             self.errorInterExpression = ""
         try: 
             if self.maxDataLength > 1: self.tableStringBlock = self.tableDesign()
+
+            self.fullTable = "{0}\n{1}\n{2}".format(self.tableBegin, self.tableStringBlock, self.tableEnd)
         except Exception as e: print(e) #uncomment for debugging intermediateExpression()
 
-        self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns)
+        self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns) #Presents final answer, unicode in the middle is for plus minus sign
         
-        string_block = 'E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \\\\ {7} \\\\ {8} \n {9}' \
-        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, self.answerPresentation, tableEXPL, self.tableStringBlock)
+        string_block = '\r\\begin{{align}} \n E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \\\\ {7} \\\\ {8} \n\end{{align}} \n{9}' \
+        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, self.answerPresentation, tableEXPL, self.fullTable)
         
         self.reInitializeData()
         self.latexOutput.setText(string_block)
-
-    def isNumber(self, s):
-        ''' 
-        Implemented in validating sample calculation inputs
-        '''
-        try:
-            float(s)
-            return True
-        except ValueError:
-            return False
 
     def dataNormality(self):
 
@@ -174,6 +200,10 @@ class userInput():
                 del self.errorData[key][len(self.errorData[key]) - 1]
 
     def reInitializeData(self):
+
+        ''' 
+        It`s in the name
+        '''
 
         ''' Expressions '''
         self.equationInterExpression = self.equationExpression

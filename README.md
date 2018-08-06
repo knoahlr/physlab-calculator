@@ -32,7 +32,7 @@ Hitting the submit button launches the sample calculation window presented in Fi
 
 ![Figure 2](articles/varWindow.PNG)
 
-**Note:** Providing a list of values as shown in figure above will produce a table showing the equatiuons evaluation and the corresponding error.
+**Note:** Providing a list of values as shown in figure above will produce a table showing the equations evaluation and the corresponding error.
 
 Hitting submit on the sample calculation window populates the latex Output box in the mainwindow as seen in Figure 3.
  

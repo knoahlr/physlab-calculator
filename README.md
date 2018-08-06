@@ -1,6 +1,6 @@
 # **Error Propagation tool**
 
-Designed to find the error propagation equation and sample calculation. It then outputs result in latex form to copy paste into report. 
+Designed to find the error propagation equation and perform sample calculations. It then outputs result in latex form to copy paste into report.
 
 ## **Prerequisites**
 

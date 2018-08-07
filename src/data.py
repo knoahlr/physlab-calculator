@@ -156,7 +156,6 @@ class userInput():
         """
         
         #Subs expression makes a temp dictionary to use only the first value for the sample calculation 
-        #print(latex(expression.evalf(subs={key:data[0] for key, data in eqData.items()}), mul_symbol='times'))
         expressionAns = latex(self.equationExpression.evalf(subs={key:data[0] for key, data in self.equationData.items()}))
         errorExprAns = latex(self.errorExpression.evalf(subs=dict({key:data[0] for key, data in self.equationData.items()}, **{key:data[0] for key, data in self.errorData.items()})))
 
@@ -180,7 +179,7 @@ class userInput():
         self.reInitializeData()
         self.latexOutput.setText(string_block)
 
-    def dataNormality(self):
+    def dataNormalization(self):
 
         ''' 
         In the secondary Window, if one variable has more data inputs than the other, 

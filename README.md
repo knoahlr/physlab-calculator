@@ -4,7 +4,7 @@ Designed to find the error propagation equation and perform sample calculations.
 
 ## **Prerequisites**
 
-This small python3 program makes heavy use of the **PyQt5** and **Sympy** framework.
+This small python3 program makes heavy use of the **PyQt5** and **Sympy** framework. **Pandas** is required only if you mean to output a table.
 You can install them by running.
 
  ```bash
@@ -42,5 +42,4 @@ View the output on any latex interpreter.
 
 ## To be Implemented
 
-* Significant figures for data presentation
 * Context Menus

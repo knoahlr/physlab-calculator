@@ -103,7 +103,7 @@ class secondaryWindow(QWidget):
             sampErrInput = self.bottomGroupBox.findChild(QLineEdit, str(var))
             self.dataInput.errorData['{0}{1}'.format(SIGMA, var)] = sampErrInput.text().split(',')
 
-        self.dataInput.dataNormality()
+        self.dataInput.dataNormalization()
 
         self.validateInput()
 

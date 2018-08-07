@@ -10,11 +10,11 @@ import enum
 
 SIGMA = 'sigma_'
 UNICODE_IDENTIFIER_PLUS_MINUS = "PLUS-MINUS SIGN"
-EXPL = r'\intertext{The Corresponding error expression is,}'
-tableEXPL = r'\intertext{ Value of --- and corresponding error for values presented in table , }'
 
 class latexStrings(enum.Enum):
     
+    EXPL = "The Corresponding error expression is,"
+    tableEXPL = "Value of --- and corresponding error for values presented in table , "
     equationBegin = "\r\\begin{align}\r"
     equationEnd = "\r\end{align}\r"
     tableBegin = "\\begin{table}[]\n\centering"
@@ -173,9 +173,9 @@ class userInput():
 
         self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns) #Presents final answer, unicode in the middle is for plus minus sign
         
-        string_block = '{eqBegin}\n E&= {0} {eqEnd}\\\\ {eqBegin} {1} {eqEnd} \\\\ {eqBegin}\n E&= {2} \\\\ {3} {eqEnd}  {eqBegin}\n \sigma_E &= {4} {eqEnd} \\\\ {eqBegin} {5} {eqEnd} \\\\ {eqBegin} \sigma_E &= {6} {eqEnd} \\\\ {eqBegin} {7} \\\\ {8} {eqEnd}{9}' \
-        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression),\
-        self.errorInterExpression, errorExprAns, self.answerPresentation, tableEXPL, self.fullTable, eqBegin=latexStrings.equationBegin.value , eqEnd=latexStrings.equationEnd.value)
+        string_block = '{eqBegin}\n E&= {0} {eqEnd}\\\\ {eqBegin} {1} {eqEnd} \\\\ {eqBegin}\n E&= {2} {eqEnd} {EXPL} \\\\ {eqBegin}\n \sigma_E &= {3} {eqEnd} \\\\ {eqBegin} {4} {eqEnd} \\\\ {eqBegin} \sigma_E &= {5} {eqEnd} \\\\ {eqBegin} {6} {eqEnd} {tableEXPL} \\\\ {7}' \
+        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, latex(self.errorExpression),\
+        self.errorInterExpression, errorExprAns, self.answerPresentation, self.fullTable, EXPL=latexStrings.EXPL.value, tableEXPL=latexStrings.tableEXPL.value, eqBegin=latexStrings.equationBegin.value , eqEnd=latexStrings.equationEnd.value)
         
         self.reInitializeData()
         self.latexOutput.setText(string_block)

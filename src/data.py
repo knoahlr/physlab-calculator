@@ -6,11 +6,20 @@ from re import sub
 from pandas import DataFrame
 import sys, decimal
 
+import enum
+
 SIGMA = 'sigma_'
 UNICODE_IDENTIFIER_PLUS_MINUS = "PLUS-MINUS SIGN"
 EXPL = r'\intertext{The Corresponding error expression is,}'
 tableEXPL = r'\intertext{ Value of --- and corresponding error for values presented in table , }'
 
+class latexStrings(enum.Enum):
+    
+    equationBegin = "\r\\begin{align}\r"
+    equationEnd = "\r\end{align}\r"
+    tableBegin = "\\begin{table}[]\n\centering"
+    tableEnd = "\caption{caption}\n\label{tab:my_label}\n\end{table}\n"
+    
 '''
 Data input class
  - Equation
@@ -55,7 +64,7 @@ class userInput():
 
         self.fullTable = ""
         self.tableDataBlock = ""
-        self.tableBegin = "\\begin{table}[]\n\centering"
+        self.tableBegin = "\\begin{table}[h]\n\centering"
         self.tableEnd = "\caption{caption}\n\label{tab:my_label}\n\end{table}\n"
   
     def isNumber(self, s):
@@ -164,8 +173,9 @@ class userInput():
 
         self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns) #Presents final answer, unicode in the middle is for plus minus sign
         
-        string_block = '\r\\begin{{align}} \n E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \\\\ {7} \\\\ {8} \n\end{{align}} \n{9}' \
-        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression), self.errorInterExpression, errorExprAns, self.answerPresentation, tableEXPL, self.fullTable)
+        string_block = '{eqBegin}\n E&= {0} {eqEnd}\\\\ {eqBegin} {1} {eqEnd} \\\\ {eqBegin}\n E&= {2} \\\\ {3} {eqEnd}  {eqBegin}\n \sigma_E &= {4} {eqEnd} \\\\ {eqBegin} {5} {eqEnd} \\\\ {eqBegin} \sigma_E &= {6} {eqEnd} \\\\ {eqBegin} {7} \\\\ {8} {eqEnd}{9}' \
+        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, EXPL, latex(self.errorExpression),\
+        self.errorInterExpression, errorExprAns, self.answerPresentation, tableEXPL, self.fullTable, eqBegin=latexStrings.equationBegin.value , eqEnd=latexStrings.equationEnd.value)
         
         self.reInitializeData()
         self.latexOutput.setText(string_block)

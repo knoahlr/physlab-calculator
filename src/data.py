@@ -21,7 +21,10 @@ Data input class
 class userInput():
 
     def __init__(self, equation, allSymbols, variables):
-        
+
+        '''
+        Data class to handle user input and generate expressions for sample calculation
+        '''
 
         ''' Inputs '''
         self.equation = equation
@@ -51,13 +54,10 @@ class userInput():
         ''' Table Data '''
 
         self.fullTable = ""
-        self.tableStringBlock = ""
+        self.tableDataBlock = ""
         self.tableBegin = "\\begin{table}[]\n\centering"
-
         self.tableEnd = "\caption{caption}\n\label{tab:my_label}\n\end{table}\n"
   
-        
-
     def isNumber(self, s):
         ''' 
         Implemented in validating sample calculation inputs
@@ -157,9 +157,9 @@ class userInput():
             self.equationInterExpression = ""
             self.errorInterExpression = ""
         try: 
-            if self.maxDataLength > 1: self.tableStringBlock = self.tableDesign()
+            if self.maxDataLength > 1: self.tableDataBlock = self.tableDesign()
 
-            self.fullTable = "{0}\n{1}\n{2}".format(self.tableBegin, self.tableStringBlock, self.tableEnd)
+            self.fullTable = "{0}\n{1}\n{2}".format(self.tableBegin, self.tableDataBlock, self.tableEnd)
         except Exception as e: print(e) #uncomment for debugging intermediateExpression()
 
         self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns) #Presents final answer, unicode in the middle is for plus minus sign
@@ -216,7 +216,7 @@ class userInput():
 
         ''' Misc '''
         self.maxDataLength = None
-        self.tableStringBlock = ""
+        self.tableDataBlock = ""
 
     
 

@@ -15,6 +15,8 @@ class latexStrings(enum.Enum):
     
     EXPL = "The Corresponding error expression is,"
     tableEXPL = "Value of --- and corresponding error for values presented in table , "
+    interEXPL = r'\intertext{The Corresponding error expression is,}'
+    interTableEXPL = r'\intertext{ Value of --- and corresponding error for values presented in table,}'
     equationBegin = "\r\\begin{align}\r"
     equationEnd = "\r\end{align}\r"
     tableBegin = "\\begin{table}[]\n\centering"
@@ -29,12 +31,12 @@ Data input class
  '''
 class userInput():
 
-    def __init__(self, equation, allSymbols, variables):
+    def __init__(self, equation, allSymbols, variables, args):
 
         '''
         Data class to handle user input and generate expressions for sample calculation
         '''
-
+        self.args = args
         ''' Inputs '''
         self.equation = equation
         self.allSymbols = allSymbols
@@ -171,11 +173,16 @@ class userInput():
         except Exception as e: print(e) #uncomment for debugging intermediateExpression()
 
         self.answerPresentation = 'E&= {0} \u00B1 {1}'.format(expressionAns, errorExprAns) #Presents final answer, unicode in the middle is for plus minus sign
-        
-        string_block = '{eqBegin}\n E&= {0} {eqEnd}\\\\ {eqBegin} {1} {eqEnd} \\\\ {eqBegin}\n E&= {2} {eqEnd} {EXPL} \\\\ {eqBegin}\n \sigma_E &= {3} {eqEnd} \\\\ {eqBegin} {4} {eqEnd} \\\\ {eqBegin} \sigma_E &= {5} {eqEnd} \\\\ {eqBegin} {6} {eqEnd} {tableEXPL} \\\\ {7}' \
-        .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, latex(self.errorExpression),\
-        self.errorInterExpression, errorExprAns, self.answerPresentation, self.fullTable, EXPL=latexStrings.EXPL.value, tableEXPL=latexStrings.tableEXPL.value, eqBegin=latexStrings.equationBegin.value , eqEnd=latexStrings.equationEnd.value)
-        
+
+        if self.args.oneAlign:
+            string_block = '\r\\begin{{align}} \n E&= {0} \\\\ {1} \\\\ E&= {2} \\\\ {3} \sigma_E &= {4} \\\\  {5} \\\\ \sigma_E &= {6} \\\\ {7} \\\\ {8} \n\end{{align}} \n{9}' \
+            .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, latexStrings.interEXPL.value, latex(self.errorExpression), self.errorInterExpression, \
+            errorExprAns, self.answerPresentation, latexStrings.interTableEXPL.value, self.fullTable)	
+        else:    
+            string_block = '{eqBegin}\n E&= {0} {eqEnd}\\\\ {eqBegin} {1} {eqEnd} \\\\ {eqBegin}\n E&= {2} {eqEnd} {EXPL} \\\\ {eqBegin}\n \sigma_E &= {3} {eqEnd} \\\\ {eqBegin} {4} {eqEnd} \\\\ {eqBegin} \sigma_E &= {5} {eqEnd} \\\\ {eqBegin} {6} {eqEnd} {tableEXPL} \\\\ {7}' \
+            .format(latex(self.equationExpression), self.equationInterExpression, expressionAns, latex(self.errorExpression),\
+            self.errorInterExpression, errorExprAns, self.answerPresentation, self.fullTable, EXPL=latexStrings.EXPL.value, tableEXPL=latexStrings.tableEXPL.value, eqBegin=latexStrings.equationBegin.value , eqEnd=latexStrings.equationEnd.value)
+            
         self.reInitializeData()
         self.latexOutput.setText(string_block)
 

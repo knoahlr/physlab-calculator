@@ -1,11 +1,18 @@
-import sys, time, ctypes, re
+import sys, time, ctypes, re, argparse
 from mainWindow import mainWindow
 from secondaryWindow import secondaryWindow
 
 from PyQt5.QtWidgets import QCommonStyle, QApplication
 ICON = r'articles\atom.png'
 
+
+
 if __name__ == '__main__':
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--oneAlign", help="Represent equations in one align block", action="store_true" ,default=False)
+    args = parser.parse_args()
     
     myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
     ''' https://stackoverflow.com/questions/1551605/how-to-set-applications-taskbar-icon-in-windows-7/1552105#1552105 '''
@@ -15,6 +22,6 @@ if __name__ == '__main__':
     app.setStyle(QCommonStyle())
 
 
-    window = mainWindow()
+    window = mainWindow(args)
     window.show()
     sys.exit(app.exec_())

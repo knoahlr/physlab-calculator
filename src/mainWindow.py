@@ -19,8 +19,9 @@ class mainWindow(QMainWindow):
     Main window used to take in equation data and constants
     """
 
-    def __init__(self):
+    def __init__(self, args):
         super().__init__()
+        self.args = args
 
         '''Fields'''
         self.equation_variables = {'equation':None, 'variables':None}
@@ -111,7 +112,9 @@ class mainWindow(QMainWindow):
         return box
 
         
-    def center(self):#Center Main window in active screen. Uses cursor position as reference.
+    def center(self):
+        
+        ''' Center Main window in active screen. Uses cursor position as reference. '''
         
         topGroupBoxGm = self.topGroupBoxGeometry()
         screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
@@ -121,14 +124,15 @@ class mainWindow(QMainWindow):
 
     def handleSubmit(self):
 
-        self.dataInput = userInput(self.equationLineEdit.text().strip('\s'), list(sympify(self.equationLineEdit.text()).free_symbols), re.findall(r"[a-zA-Z']+", self.variablesLineEdit.text()))
-        self.dataInput.latexOutput = self.latexOutput
-
+        self.equation = self.equationLineEdit.text().strip('\s')
+        self.variables = re.findall(r"[a-zA-Z']+", self.variablesLineEdit.text())
+        
         if self.validateInput():
 
             ''' Integrate with LaTex backend here, also launch secondary window for sample calculations '''
 
-            self._running = False
+            self.dataInput = userInput(self.equation, self.allSymbols, self.variables, self.args)
+            self.dataInput.latexOutput = self.latexOutput
 
             self.secondWindow = secondaryWindow(self.dataInput)
             self.secondWindow.show()
@@ -139,21 +143,33 @@ class mainWindow(QMainWindow):
 
         try:
 
-            sympify(self.dataInput.equation)
+            sympify(self.equation)
+            self.allSymbols = list(sympify(self.equationLineEdit.text()).free_symbols)
 
-            if not self.dataInput.variables:
+            ''' Error window generated if atleast one variables hasn`t been provided '''
+            if not self.variables:
                 self.errorWindow = ErrorWindow('There has to be atleast one differentiable variable bro', self.icon)
                 self.variablesLineEdit.clear()
                 self.errorWindow.show()
 
                 return False
-
-  
+            else: 
+                ''' if a variable cannot be detected in equation (self.allSymbols), it`ll  be erased from self.variables'''
+                for variable in self.variables:
+                    symbols = [str(item) for item in self.allSymbols]
+                    if variable not in symbols:
+                        self.variables.remove(variable)
+                
+                self.variablesLineEdit.setText(", ".join(str(x) for x in self.variables))
+                
         except Exception as e:
+
+            ''' Catches Sympify error if equation cannot be parsed '''
 
             windowMsg = e
             self.equationLineEdit.clear()
-            self.errorWindow = ErrorWindow(windowMsg.expr, self.icon)
+            if type(windowMsg).__name__ == 'SympifyError': self.errorWindow = ErrorWindow(windowMsg.expr, self.icon)
+            else: self.errorWindow = ErrorWindow(str(windowMsg), self.icon)
             self.errorWindow.show()
 
             return False

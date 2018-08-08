@@ -1,4 +1,3 @@
-
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QFormLayout, QMainWindow, QGroupBox, QMessageBox,\
 QLabel, QTextEdit, QLineEdit, QPushButton, QVBoxLayout

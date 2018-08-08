@@ -9,7 +9,7 @@ class ErrorWindow(QWidget):
         super().__init__()
         self.setWindowTitle('Error Message')
         self.icon = icon
-        self.resize(self.minimumSizeHint())
+        self.resize(300, 50)
 
         if self.icon: self.setWindowIcon(self.icon)
 

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     app = QApplication(sys.argv)
-    app.setStyle(QCommonStyle())
+    #app.setStyle(QCommonStyle())
 
 
     window = mainWindow(args)

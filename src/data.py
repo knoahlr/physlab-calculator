@@ -41,6 +41,9 @@ class userInput():
         self.equation = equation
         self.allSymbols = allSymbols
         self.variables = variables
+        ''' Secondary Window GroupBoxes '''
+        self.topGroupBox = None
+        self.bottomGroupBox = None
 
         ''' Expressions '''
 
@@ -156,7 +159,9 @@ class userInput():
         Show sample calculation, with symbols replaced by numbers
         Variables should be a tuple of sympy symbols
         """
-        
+
+        print(self.equationData)
+        print(self.errorData)
         #Subs expression makes a temp dictionary to use only the first value for the sample calculation 
         expressionAns = latex(self.equationExpression.evalf(subs={key:data[0] for key, data in self.equationData.items()}))
         errorExprAns = latex(self.errorExpression.evalf(subs=dict({key:data[0] for key, data in self.equationData.items()}, **{key:data[0] for key, data in self.errorData.items()})))

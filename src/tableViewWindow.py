@@ -13,19 +13,21 @@ ICON = r'..\articles\atom.png'
 
 class tableWindow(QWidget):
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, dataInput):
 
         super().__init__()
 
         ''' MISC '''
         self.setWindowTitle("Data Import")
         self.icon = QtGui.QIcon(ICON)
+        if self.icon: self.setWindowIcon(self.icon)
 
         ''' Data '''
         self.dataPath = filePath
         self.dataTable = None
         self.headers = None
         self.tableModel = None
+        self.dataInput = dataInput
 
         ''' Layout '''
         self.verticalLayout = QVBoxLayout()
@@ -56,7 +58,7 @@ class tableWindow(QWidget):
         ''' Table View and button '''
 
         self.tableView = QTableView()
-        self.submitButton = QPushButton("Submit")
+        self.submitButton = QPushButton("Done")
         self.submitButton.clicked.connect(self.handleSubmit)
 
         ''' Intialize and add table view '''
@@ -85,13 +87,42 @@ class tableWindow(QWidget):
         self.dataTable = pd.read_csv(r"{0}".format(self.dataPath))
         
         self.headers = list(self.dataTable.columns.values)
-        self.dataTable.loc[-1] = np.array(["" for i in range(len(self.headers)) ])
+        self.dataTable.loc[-1] = np.array(["Select Data" for i in range(len(self.headers)) ])
         self.dataTable.index += 1
         self.dataTable = self.dataTable.sort_index()
+
+    def getData(self):
+
+        ''' Sub headers into dataframe columns '''
+
+        self.dataTable.columns = self.headers
+        self.dataTable = self.dataTable.drop(self.dataTable.index[0])
+
+        for var in self.dataInput.allSymbols:
+
+            if str(var) in self.dataTable.columns:
+                self.dataInput.equationData[str(var)] = list(self.dataTable.loc[:,str(var)])
+
+                sampEquationInput= self.dataInput.topGroupBox.findChild(QLineEdit, str(var))
+                presentationStrings = [self.dataInput.equationData[str(var)][i] for i in range(5)]
+                sampEquationInput.setText(", ".join(map(str, presentationStrings)))
+
+        
+        #Implement errors
+
+        
+
+
+
+
+        
+
         
 
     def handleSubmit(self):
-        pass
+        self.getData()
+        self.close()
+        
 
 
 class myTableModel(QtCore.QAbstractTableModel):
@@ -125,6 +156,7 @@ class myTableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self.headers[col]
         return None
+
     def setData(self, index, value, role):
 
         if index.isValid():
@@ -134,11 +166,16 @@ class myTableModel(QtCore.QAbstractTableModel):
                     self.dataChanged.emit(index, index)
                     return True
                 self.headers[index.column()] = value
+
                 self.myTableData.iat[index.row(), index.column()] = value
                 self.dataChanged.emit(index, index)
-            ''' Implement Data Edit '''
 
-            return True
+                return True
+            else:
+                self.myTableData.iat[index.row(), index.column()] = value
+                self.dataChanged.emit(index, index)
+                return True
+
         return False
 
     def setHeaderData(self, section, orientation, value, role):
@@ -146,7 +183,6 @@ class myTableModel(QtCore.QAbstractTableModel):
         ''' Change column names '''
         if role == QtCore.Qt.DisplayRole:
             self.headers[section] = str(value)
-            print(self.headers)
 
     def flags(self, index):
 
@@ -168,11 +204,8 @@ if __name__ == "__main__":
     print('Noah')
 
     app = QApplication(sys.argv)
-    app.setStyle(QCommonStyle())
 
-    
-
-    tableview  = tableWindow(r"C:\Users\Noah Workstation\Desktop\P_PR\repo\physlab-calculator\test\testData.csv")
+    tableview  = tableWindow(r"C:\Users\Noah Workstation\Desktop\P_PR\repo\physlab-calculator\test\testData.csv", None)
     tableview.show()
 
     sys.exit(app.exec_())

@@ -102,43 +102,43 @@ class tableWindow(QWidget):
         for var in self.dataInput.allSymbols:
 
             if str(var) in self.dataTable.columns:
-                self.dataInput.equationData[str(var)] = list((self.floatFormatting(value) for value in self.dataTable.loc[:,str(var)]))
+                self.dataInput.equationData[str(var)] = list((self.dataInput.floatFormatting(value) for value in self.dataTable.loc[:,str(var)]))
 
                 for header in self.dataTable.columns:
                     if re.match("error{0}".format(str(var)), header, re.IGNORECASE):
-                        self.dataInput.errorData['{0}{1}'.format(SIGMA, var)] = list((self.floatFormatting(value) for value in self.dataTable.loc[:,header]))
+                        self.dataInput.errorData['{0}{1}'.format(SIGMA, var)] = list((self.dataInput.floatFormatting(value) for value in self.dataTable.loc[:,header]))
         
         self.dataInput.dataNormalization()
         self.dataInput.postToGroupBox()
         
-    def isNumber(self, s):
-        ''' 
-        Implemented in validating sample calculation inputs
-        '''
-        try:
-            float(s)
-            return (True, None)
-        except Exception as e:
-            return (False, e)
+    # def isNumber(self, s):
+    #     ''' 
+    #     Implemented in validating sample calculation inputs
+    #     '''
+    #     try:
+    #         float(s)
+    #         return (True, None)
+    #     except Exception as e:
+    #         return (False, e)
 
 
-    def floatFormatting(self, floatValue):
-        ''' 
-        Returns a string in unicode format
-        '''
-        numCheck = self.isNumber(floatValue)
+    # def floatFormatting(self, floatValue):
+    #     ''' 
+    #     Returns a string in unicode format
+    #     '''
+    #     numCheck = self.isNumber(floatValue)
 
-        '''
-        Formatting Complex numbers to four significant figures and scientific notation
-        '''
-        if not numCheck[0]:
-            if type(numCheck[1]).__name__ == 'TypeError':
-                floatValue = re.sub('[*I]+','j', str(floatValue))
-                floatValue = complex(re.sub('\s+',"",floatValue))
-                return '{0:.4g}'.format(floatValue)
+    #     '''
+    #     Formatting Complex numbers to four significant figures and scientific notation
+    #     '''
+    #     if not numCheck[0]:
+    #         if type(numCheck[1]).__name__ == 'TypeError':
+    #             floatValue = re.sub('[*I]+','j', str(floatValue))
+    #             floatValue = complex(re.sub('\s+',"",floatValue))
+    #             return '{0:.4g}'.format(floatValue)
                 
-        floatValue = '{0:.4g}'.format(float(floatValue))
-        return floatValue
+    #     floatValue = '{0:.4g}'.format(float(floatValue))
+    #     return floatValue
 
     def handleSubmit(self):
         self.getData()

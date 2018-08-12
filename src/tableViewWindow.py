@@ -3,11 +3,12 @@ from PyQt5.QtWidgets import QWidget, QFormLayout, QMainWindow, QGroupBox, QMessa
 QLabel, QTextEdit, QLineEdit, QPushButton, QVBoxLayout, QScrollArea, QTableView
 
 from PyQt5.QtWidgets import QCommonStyle, QApplication #Delete
+from data import SIGMA
 
 import pandas as pd
 import numpy as np
 
-import sys
+import sys, re
 
 ICON = r'..\articles\atom.png'
 
@@ -101,23 +102,43 @@ class tableWindow(QWidget):
         for var in self.dataInput.allSymbols:
 
             if str(var) in self.dataTable.columns:
-                self.dataInput.equationData[str(var)] = list(self.dataTable.loc[:,str(var)])
+                self.dataInput.equationData[str(var)] = list((self.floatFormatting(value) for value in self.dataTable.loc[:,str(var)]))
 
-                sampEquationInput= self.dataInput.topGroupBox.findChild(QLineEdit, str(var))
-                presentationStrings = [self.dataInput.equationData[str(var)][i] for i in range(5)]
-                sampEquationInput.setText(", ".join(map(str, presentationStrings)))
-
+                for header in self.dataTable.columns:
+                    if re.match("error{0}".format(str(var)), header, re.IGNORECASE):
+                        self.dataInput.errorData['{0}{1}'.format(SIGMA, var)] = list((self.floatFormatting(value) for value in self.dataTable.loc[:,header]))
         
-        #Implement errors
-
+        self.dataInput.dataNormalization()
+        self.dataInput.postToGroupBox()
         
+    def isNumber(self, s):
+        ''' 
+        Implemented in validating sample calculation inputs
+        '''
+        try:
+            float(s)
+            return (True, None)
+        except Exception as e:
+            return (False, e)
 
 
+    def floatFormatting(self, floatValue):
+        ''' 
+        Returns a string in unicode format
+        '''
+        numCheck = self.isNumber(floatValue)
 
-
-        
-
-        
+        '''
+        Formatting Complex numbers to four significant figures and scientific notation
+        '''
+        if not numCheck[0]:
+            if type(numCheck[1]).__name__ == 'TypeError':
+                floatValue = re.sub('[*I]+','j', str(floatValue))
+                floatValue = complex(re.sub('\s+',"",floatValue))
+                return '{0:.4g}'.format(floatValue)
+                
+        floatValue = '{0:.4g}'.format(float(floatValue))
+        return floatValue
 
     def handleSubmit(self):
         self.getData()
@@ -191,13 +212,6 @@ class myTableModel(QtCore.QAbstractTableModel):
     def verifyHeaderValue(self, value):
 
         ''' Check whether header name is valid '''
-
-  
-
-
-
-    
-
 
 if __name__ == "__main__":
 

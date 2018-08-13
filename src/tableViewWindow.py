@@ -21,6 +21,7 @@ class tableWindow(QWidget):
         ''' MISC '''
         self.setWindowTitle("Data Import")
         self.icon = QtGui.QIcon(ICON)
+        self.info = r"Replace 'Select Data' with variable name to import column into variable"
         if self.icon: self.setWindowIcon(self.icon)
 
         ''' Data '''
@@ -48,13 +49,17 @@ class tableWindow(QWidget):
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         
-        ''' Two Group boxes for table view and submit button '''
+        ''' Three Group boxes for info, table view and submit button '''
+        self.infoGroupBox = QGroupBox('Info')
+        self.infoLayout = QFormLayout(self.infoGroupBox)
+        self.infoLabel = QLabel(self.info)
+        self.infoLayout.setWidget(0, QFormLayout.LabelRole, self.infoLabel)
 
         self.tableGroupBox = QGroupBox('TestData CSV')
         self.tableLayout = QVBoxLayout(self.tableGroupBox)
 
-        self.submitGroupBox = QGroupBox()
-        self.submitLayout = QVBoxLayout(self.submitGroupBox)
+        self.doneGroupBox = QGroupBox()
+        self.doneLayout = QVBoxLayout(self.doneGroupBox)
 
         ''' Table View and button '''
 
@@ -66,8 +71,9 @@ class tableWindow(QWidget):
         self.initializeData()
         self.tableView.setModel(self.tableModel)
         
+        self.scrollLayout.addWidget(self.infoGroupBox)
         self.scrollLayout.addWidget(self.tableGroupBox)
-        self.scrollLayout.addWidget(self.submitGroupBox)
+        self.scrollLayout.addWidget(self.doneGroupBox)
         self.verticalLayout.addWidget(self.scroll)
 
 
@@ -80,7 +86,7 @@ class tableWindow(QWidget):
 
         ''' layout for Group boxes '''
         self.tableLayout.addWidget(self.tableView)
-        self.submitLayout.addWidget(self.submitButton)
+        self.doneLayout.addWidget(self.submitButton)
 
 
     def readData(self):

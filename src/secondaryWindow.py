@@ -111,6 +111,7 @@ class secondaryWindow(QWidget):
                 self.inputLabel = QLabel('{0}{1}'.format(unicodedata.lookup("GREEK SMALL LETTER SIGMA"), str(variable)), GroupBox)
                 #self.input.setText('0.023, 0.01, 0.02, 0.005, 0.7, 0.023, 0.01, 0.02, 0.005, 0.7, 0.023, 0.01, 0.02, 0.005, 0.7, 0.023, 0.01, 0.02, 0.005, 0.7')
                 self.input.setText('0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0')
+                #self.input.setText('0.3')
             else: 
                 self.inputLabel = QLabel(str(variable), GroupBox)
                 self.input.setText('2.7, 6.6, 7.8, 9.2, 10.4, 2.7, 6.6, 7.8, 9.2, 10.4, 2.7, 6.6, 7.8, 9.2, 10.4, 2.77, 6.6, 7.8, 9.2, 10.4')

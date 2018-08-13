@@ -69,7 +69,7 @@ class mainWindow(QMainWindow):
 
         '''Equation and variables text editors'''
         self.equationLineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.equationLineEdit.setText('cos(x) + sin(y)^2 + asin(z)^3 *exp(3*z)*sin(a)')
+        self.equationLineEdit.setText('cos(x) + sin(y)^2 + atan(z)^3 *exp(3*z)*sin(a)')
         self.variablesLineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.variablesLineEdit.setText('x, y, z')
 

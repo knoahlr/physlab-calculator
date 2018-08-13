@@ -170,9 +170,20 @@ class userInput():
         data = [self.equationData[str(symbol)] for symbol in self.allSymbols]
         data = array([list(map(self.floatFormatting, item)) for item in data])
 
+        print('here') 
+        errorData = [self.errorData['{0}{1}'.format(SIGMA, str(symbol))] for symbol in self.allSymbols]
+        errorData = array([list(map(self.floatFormatting, item)) for item in errorData])
+
+        print('here1')
+
         self.equationExpression.lambdifyExpression()
-        lambExpressionAns = self.equationExpression.lambdaExpression(*data)
-        print(lambExpressionAns)
+        self.errorExpression.lambdifyExpression()
+
+        # eqExpressionAns = self.equationExpression.lambdaExpression(*data)
+        # errorExpressionAns = self.errorExpression.lambdaExpression(*errorData)
+
+
+        # df = DataFrame({'E':eqExpressionAns, "Error on E":errorExpressionAns})
 
         df = DataFrame({'E':expressionAns, "Error on E":errorExprAns})
         print(df)
@@ -315,9 +326,6 @@ class Expressions():
     def lambdifyExpression(self):
 
         symbols = tuple(map(str, self.allSymbols))
-
-        print(len(symbols), len( ([1,2,3,4], [5,6,7,8], [9,10,11,12], [13,14,15,16]) ))
-        print(symbols, type(symbols))
         self.lambdaExpression = lambdify( symbols, self.expression, 'numpy')
   
 if __name__ == "__main__":

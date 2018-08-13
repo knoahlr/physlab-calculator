@@ -1,14 +1,15 @@
 from sympy import sympify
 from errorWindow import ErrorWindow
 
-from sympy import sympify, latex, diff, symbols, sqrt
+from sympy import sympify, latex, diff, symbols, sqrt, lambdify
 from re import sub
 from pandas import DataFrame
 from PyQt5.QtWidgets import QLineEdit
 import sys, decimal
 
 import enum
-
+from numpy import array
+import numpy
 SIGMA = 'sigma_'
 UNICODE_IDENTIFIER_PLUS_MINUS = "PLUS-MINUS SIGN"
 
@@ -111,7 +112,7 @@ class userInput():
                 return '{0:.4g}'.format(floatValue)
                 
         floatValue = '{0:.4g}'.format(float(floatValue))
-        return floatValue
+        return float(floatValue)
 
     def intermediateExpression(self):
         '''
@@ -165,6 +166,13 @@ class userInput():
         expressionAns = [self.floatFormatting(self.equationExpression.expression.evalf(subs={key:data[i] for key, data in self.equationData.items()})) for i in range(self.maxDataLength)]
         errorExprAns = [self.floatFormatting(self.errorExpression.expression.evalf(subs=dict({key:data[i] for key, data in self.equationData.items()}, \
         **{key:data[i] for key, data in self.errorData.items()}))) for i in range(self.maxDataLength)]
+
+        data = [self.equationData[str(symbol)] for symbol in self.allSymbols]
+        data = array([list(map(self.floatFormatting, item)) for item in data])
+
+        self.equationExpression.lambdifyExpression()
+        lambExpressionAns = self.equationExpression.lambdaExpression(*data)
+        print(lambExpressionAns)
 
         df = DataFrame({'E':expressionAns, "Error on E":errorExprAns})
         print(df)
@@ -285,6 +293,8 @@ class Expressions():
 
         self.allSymbols = allSymbols
         self.expression = expression
+        self.lambdaExpression = None
+
         
 
 
@@ -302,16 +312,22 @@ class Expressions():
 
                 self.expression = sub(regexString, regexSub, str(self.expression))
 
-        # print(self.expression)
-        # print(latex(sympify(self.expression)))
+    def lambdifyExpression(self):
 
+        symbols = tuple(map(str, self.allSymbols))
 
+        print(len(symbols), len( ([1,2,3,4], [5,6,7,8], [9,10,11,12], [13,14,15,16]) ))
+        print(symbols, type(symbols))
+        self.lambdaExpression = lambdify( symbols, self.expression, 'numpy')
+  
 if __name__ == "__main__":
 
     expr = "sqrt(sigma_x**2*sin(x)**2 + 4*sigma_y**2*sin(y)**2*cos(y)**2 + sigma_z**2*(3*exp(3*z)*sin(a)*asin(z)**3 + 3*exp(3*z)*sin(a)*asin(z)**2/sqrt(-z**2 + 1))**2)"
+    expr2 = sympify("exp(3*z)*sin(a)*asin(z)**3 + sin(y)**2 + cos(x)")
     symbols = ["x", "y", "a", "z"]
 
-    finalExpr = Expressions(expr, symbols)
-
-    finalExpr.addEvaluateFalse()
+    finalExpr = Expressions(expr2, symbols)
+    finalExpr.lambdifyExpression()
+    finalExpr.lambdaExpression(*array([[1,1], [2,2], [3,3], [4,4]]) )
+    #finalExpr.addEvaluateFalse()
 

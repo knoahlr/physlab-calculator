@@ -33,13 +33,17 @@ Hitting the submit button launches the sample calculation window presented in Fi
 ![Figure 2](articles/varWindow.PNG)
 
 **Note:** Providing a list of values as shown in figure above will produce a table showing the equation`s evaluation and the corresponding error.
+## **Importing Data**
+
+CSV data can be imported by providing a relative or absolute path in the import file window. Hitting submit launches a Table View that enables you to load data into variables.
+Column data can be loaded into specific variables by renaming the first column to the respective variable you wish to load the data into.
+
+ ![Figure 3](articles/tableView.PNG)
+
+**Note:** Data selection can be verified by the header name of the column changing to the variable the data has been imported to. Hit done to finish loading data.
 
 Hitting submit on the sample calculation window populates the latex Output box in the mainwindow as seen in Figure 3.
  
- ![Figure 2](articles/mainWindowFinal.PNG)
+ ![Figure 4](articles/mainWindowFinal.PNG)
  
 View the output on any latex interpreter.
-
-## To be Implemented
-
-* Context Menus

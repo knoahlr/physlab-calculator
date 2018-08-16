@@ -10,6 +10,9 @@ import sys, decimal
 import enum
 from numpy import array
 import numpy
+import time
+
+from inspect import getargspec
 SIGMA = 'sigma_'
 UNICODE_IDENTIFIER_PLUS_MINUS = "PLUS-MINUS SIGN"
 
@@ -163,30 +166,45 @@ class userInput():
 
         """ Present sample calculation data on table """
 
+        ''' Evaluating equations using sympy 
+
+        sympyStart = time.time()
         expressionAns = [self.floatFormatting(self.equationExpression.expression.evalf(subs={key:data[i] for key, data in self.equationData.items()})) for i in range(self.maxDataLength)]
         errorExprAns = [self.floatFormatting(self.errorExpression.expression.evalf(subs=dict({key:data[i] for key, data in self.equationData.items()}, \
         **{key:data[i] for key, data in self.errorData.items()}))) for i in range(self.maxDataLength)]
+        sympyEnd = time.time()
 
-        data = [self.equationData[str(symbol)] for symbol in self.allSymbols]
-        data = array([list(map(self.floatFormatting, item)) for item in data])
+        '''
 
-        print('here') 
+        mpmathStart = time.time()
+
+        eqData = [self.equationData[str(symbol)] for symbol in self.allSymbols]
+        eqData = array([list(map(self.floatFormatting, item)) for item in eqData])
+
         errorData = [self.errorData['{0}{1}'.format(SIGMA, str(symbol))] for symbol in self.allSymbols]
         errorData = array([list(map(self.floatFormatting, item)) for item in errorData])
 
-        print('here1')
-
+        
         self.equationExpression.lambdifyExpression()
-        self.errorExpression.lambdifyExpression()
+        self.errorExpression.lambdifyExpression(errorExpression=True)
 
-        # eqExpressionAns = self.equationExpression.lambdaExpression(*data)
-        # errorExpressionAns = self.errorExpression.lambdaExpression(*errorData)
+        # print(getargspec(self.equationExpression.lambdaExpression))
+        # print(getargspec(self.errorExpression.lambdaExpression))
 
+        eqExpressionAns = [self.floatFormatting(self.equationExpression.lambdaExpression(*[data[i] for data in eqData])) for i in range(self.maxDataLength)]
+        errorExpressionAns = [self.floatFormatting(self.errorExpression.lambdaExpression(*list([data[i] for data in eqData] + [errData[i] for errData in errorData]))) for i in range(self.maxDataLength)]
 
-        # df = DataFrame({'E':eqExpressionAns, "Error on E":errorExpressionAns})
+        mpmathEnd = time.time()
 
-        df = DataFrame({'E':expressionAns, "Error on E":errorExprAns})
-        print(df)
+        #print("Time" , sympyEnd - sympyStart, mpmathEnd - mpmathStart, (sympyEnd - sympyStart)/(mpmathEnd - mpmathStart))
+
+       
+        df = DataFrame({'E':eqExpressionAns, "Error on E":errorExpressionAns})
+        #print(df)
+
+        # print('\n\nSecond DF\n\n')
+        # df = DataFrame({'E':expressionAns, "Error on E":errorExprAns})
+        # print(df)
     
         return df.to_latex(column_format='cccc')     
 
@@ -323,19 +341,55 @@ class Expressions():
 
                 self.expression = sub(regexString, regexSub, str(self.expression))
 
-    def lambdifyExpression(self):
+    def lambdifyExpression(self, errorExpression=False):
 
         symbols = tuple(map(str, self.allSymbols))
-        self.lambdaExpression = lambdify( symbols, self.expression, 'numpy')
+        print(errorExpression)
+
+        if not errorExpression: self.lambdaExpression = lambdify( symbols, self.expression, 'mpmath')
+        else:
+            symbols = tuple(map(str, self.allSymbols)) + tuple(("{0}{1}".format(SIGMA, symbol) for symbol in self.allSymbols))
+            print("symbols", symbols)
+            self.lambdaExpression = lambdify( symbols, self.expression, 'mpmath')
+
   
 if __name__ == "__main__":
 
-    expr = "sqrt(sigma_x**2*sin(x)**2 + 4*sigma_y**2*sin(y)**2*cos(y)**2 + sigma_z**2*(3*exp(3*z)*sin(a)*asin(z)**3 + 3*exp(3*z)*sin(a)*asin(z)**2/sqrt(-z**2 + 1))**2)"
+    logFile = open('../test/log.log', 'w')
+    sys.stdout = logFile
+    expr = sympify("sqrt(sigma_x**2*sin(x)**2 + 4*sigma_y**2*sin(y)**2*cos(y)**2 + sigma_z**2*(3*exp(3*z)*sin(a)*asin(z)**3 + 3*exp(3*z)*sin(a)*asin(z)**2/sqrt(-z**2 + 1))**2)")
     expr2 = sympify("exp(3*z)*sin(a)*asin(z)**3 + sin(y)**2 + cos(x)")
-    symbols = ["x", "y", "a", "z"]
+    symbols1 = ["x", "y", "a", "z"]
+    symbols2 = ["x", "y", "a", "z", "sigma_x", "sigma_a", "sigma_y", "sigma_z"]
+    datas = ((1.0,2.0,3.0,4.0), (1.0,2.0,3.0,4.0), (1.0,2.0,3.0,4.0), (1.0,2.0,3.0,4.0) )
+    datas2 = ((1.0,2.0,3.0,4.0, 5.0, 6.0, 7.0, 8.0), (1.0,2.0,3.0,4.0, 5.0, 6.0, 7.0, 8.0), (1.0,2.0,3.0,4.0, 5.0, 6.0, 7.0, 8.0), (1.0,2.0,3.0,4.0, 5.0, 6.0, 7.0, 8.0))
+    
+    x, y, a, z, sigma_x, sigma_a, sigma_y, sigma_z = symbols("x, y, a, z, sigma_x, sigma_a, sigma_y, sigma_z")
+    sDatas = {x:(1.0,2.0,3.0,4.0),y:(1.0,2.0,3.0,4.0),a:(1.0,2.0,3.0,4.0), z:(1.0,2.0,3.0,4.0)}
+    sErrorDatas = {x:(1.0,2.0,3.0,4.0),y:(1.0,2.0,3.0,4.0),a:(1.0,2.0,3.0,4.0), z:(1.0,2.0,3.0,4.0), sigma_x:(5.0, 6.0, 7.0, 8.0), sigma_y:(5.0, 6.0, 7.0, 8.0), sigma_a:(5.0, 6.0, 7.0, 8.0), sigma_z:(5.0, 6.0, 7.0, 8.0)}
+    finalExpr = Expressions(expr2, symbols1)
+    finalerrorExpr = Expressions(expr, symbols2)
 
-    finalExpr = Expressions(expr2, symbols)
+
+    mpStart = time.time()
     finalExpr.lambdifyExpression()
-    finalExpr.lambdaExpression(*array([[1,1], [2,2], [3,3], [4,4]]) )
+    finalerrorExpr.lambdifyExpression()
+
+    print(getargspec(finalExpr.lambdaExpression))
+    print(getargspec(finalerrorExpr.lambdaExpression))
+    answer = [finalExpr.lambdaExpression(*data) for data in datas]
+    answer2 = [finalerrorExpr.lambdaExpression(*data) for data in datas2]
+    mpEnd = time.time()
+
+    sympyStart = time.time()
+    answer3 = [finalExpr.expression.evalf(subs={key:value[i] for key, value in sDatas.items()}) for i in range(4)]
+    answer4 = [finalerrorExpr.expression.evalf(subs={key:value[i] for key, value in sErrorDatas.items()}) for i in range(4)]
+    sympyEnd = time.time()
+
+    print(mpEnd - mpStart, sympyEnd - sympyStart)
+    print(answer, answer3)
+    print(answer2, answer4)
+
+    #finalExpr.lambdaExpression(*array([[1,1], [2,2], [3,3], [4,4]]) )
     #finalExpr.addEvaluateFalse()
 

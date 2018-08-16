@@ -116,7 +116,7 @@ class secondaryWindow(QWidget):
                 self.inputLabel = QLabel(str(variable), GroupBox)
                 self.input.setText('2.7, 6.6, 7.8, 9.2, 10.4, 2.7, 6.6, 7.8, 9.2, 10.4, 2.7, 6.6, 7.8, 9.2, 10.4, 2.77, 6.6, 7.8, 9.2, 10.4')
                 
-
+ 
 
             self.input.setObjectName(str(variable))
             self.input.setPlaceholderText(str(variable))

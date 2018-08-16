@@ -330,16 +330,22 @@ class Expressions():
     def addEvaluateFalse(self):
 
         '''
-        Adds evaluate=False flag to functions in expression
+        Adds evaluate=False flag to functions in expression using regular expression
         '''
         for symbol in self.allSymbols:
 
             for func in functionStrings:
 
-                regexString = "(?<=[^a-zA-Z]){0}\([A-Za-z0-9]\)".format(func.value)
                 regexSub  = "{0}({1}, evaluate=False)".format(func.value, str(symbol))
 
+                ''' Two different regex strings because I'm unable to get the lookbehind to work at the start of strings '''
+                
+                regexString = "^{0}\({1}\)".format(func.value, str(symbol))
                 self.expression = sub(regexString, regexSub, str(self.expression))
+
+                regexString = "(?<=[^a-zA-Z]){0}\({1}\)".format(func.value, str(symbol))
+                self.expression = sub(regexString, regexSub, self.expression)
+                print(self.expression)
 
     def lambdifyExpression(self, errorExpression=False):
 

@@ -7,6 +7,7 @@ from sympy import symbols, sympify, pretty
 from secondaryWindow import secondaryWindow
 from errorWindow import ErrorWindow
 from data import userInput
+from defaultMenuBar import DefaultMenuBar
 
 import re
 
@@ -37,12 +38,14 @@ class mainWindow(QMainWindow):
         self.resize(800,500)
         self.setWindowTitle("Error Propagation")
         self.setWindowIcon(self.icon)
+        self.setMenuBar(DefaultMenuBar(self))
+
 
         ''' Setting window layout and central widget '''
         self.centralwidget = QtWidgets.QWidget()
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setAlignment(QtCore.Qt.AlignCenter)
-        self.formLayout = QtWidgets.QFormLayout()
+        # self.formLayout = QtWidgets.QFormLayout()
         
         '''Box Frames'''
         self.formatGroupBox = self.designGroupBox('Equation format')
@@ -98,7 +101,10 @@ class mainWindow(QMainWindow):
         self.eqFormatLayout.setWidget(1, QFormLayout.LabelRole, self.typedEquationLabel)
         self.setCentralWidget(self.centralwidget)
 
-    
+    def setWindowOpacity(self, value):
+
+        value = float(value)/100
+        self.setProperty("windowOpacity", value)
     
     def addFields(self, row, layout, editBox, label):
 

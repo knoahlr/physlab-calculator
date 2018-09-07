@@ -46,4 +46,9 @@ Hitting submit on the sample calculation window populates the latex Output box i
  
  ![Figure 4](articles/mainWindowFinal.PNG)
  
-View the output on any latex interpreter.
+ View the output on any latex interpreter.
+ 
+ ## **To be Implemented**
+ 
+ * Output CSV data.
+ 

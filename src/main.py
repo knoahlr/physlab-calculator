@@ -2,6 +2,7 @@ import sys, time, ctypes, re, argparse
 from mainWindow import mainWindow
 from secondaryWindow import secondaryWindow
 
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QCommonStyle, QApplication
 ICON = r'articles\atom.png'
 
@@ -23,6 +24,14 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
+    
+    styleSheetFile = QtCore.QFile(r"../css/materialDesign.qss")
+    styleSheetFile.open(QtCore.QFile.ReadOnly)
+    
+    styleSheetFileString = str(styleSheetFile.readAll(), "utf-8") 
+
+
+    app.setStyleSheet(styleSheetFileString)
     #app.setStyle(QCommonStyle())
 
     window = mainWindow(args)
